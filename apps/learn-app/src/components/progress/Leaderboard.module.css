@@ -1,0 +1,15 @@
+/* Minimal module — most layout uses Tailwind via cn() */
+
+.youTag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  background: var(--gf-xp-bg);
+  color: var(--gf-xp-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}

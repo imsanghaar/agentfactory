@@ -1,0 +1,233 @@
+openapi: 3.1.0
+info:
+  title: Interactive Study Mode API
+  description: AI-powered learning assistant for the AgentFactory book
+  version: 1.0.0
+  contact:
+    name: AgentFactory Team
+
+servers:
+  - url: /api
+    description: Relative to deployment root
+
+paths:
+  /chat:
+    post:
+      operationId: chat
+      summary: Send a chat message and receive AI response
+      description: |
+        Sends a user message along with conversation context to the AI assistant.
+        The assistant provides lesson-aware responses based on the selected mode.
+
+        **Modes:**
+        - `teach`: Proactive explanation, comprehension checks, guided learning
+        - `ask`: Direct Q&A about the lesson content
+
+        **Rate Limit:** 60 requests per hour per IP address
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              teachMode:
+                summary: Teach mode request
+                value:
+                  lessonPath: "/docs/01-foundations/03-principles/01-intro"
+                  userMessage: "I don't understand this concept"
+                  conversationHistory: []
+                  mode: "teach"
+              askMode:
+                summary: Ask mode request
+                value:
+                  lessonPath: "/docs/05-building-agents/49-docker/01-containers"
+                  userMessage: "What does the FROM instruction do?"
+                  conversationHistory:
+                    - role: "user"
+                      content: "Can you explain Docker basics?"
+                      timestamp: "2026-01-23T10:00:00Z"
+                    - role: "assistant"
+                      content: "Docker is a containerization platform..."
+                      timestamp: "2026-01-23T10:00:05Z"
+                  mode: "ask"
+      responses:
+        '200':
+          description: Successful response with AI-generated message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              example:
+                assistantMessage: "Great question! The FROM instruction in a Dockerfile specifies the base image..."
+                metadata:
+                  model: "claude-3-opus"
+                  tokensUsed: 450
+                  processingTimeMs: 2340
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: "VALIDATION_ERROR"
+                  message: "userMessage is required and must be 1-5000 characters"
+        '404':
+          description: Lesson content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: "LESSON_NOT_FOUND"
+                  message: "Could not load content for the specified lesson path"
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: "RATE_LIMITED"
+                  message: "Rate limit exceeded. Please try again later."
+          headers:
+            Retry-After:
+              description: Seconds until rate limit resets
+              schema:
+                type: integer
+                example: 3600
+        '503':
+          description: AI service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: "AI_UNAVAILABLE"
+                  message: "AI assistant temporarily unavailable. Please try again shortly."
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - lessonPath
+        - userMessage
+        - mode
+      properties:
+        lessonPath:
+          type: string
+          description: URL path to the current lesson
+          example: "/docs/01-foundations/03-principles/01-intro"
+          minLength: 1
+          maxLength: 500
+        userMessage:
+          type: string
+          description: The user's message to the AI assistant
+          minLength: 1
+          maxLength: 5000
+        conversationHistory:
+          type: array
+          description: Previous messages in the conversation for context
+          items:
+            $ref: '#/components/schemas/Message'
+          default: []
+          maxItems: 50
+        mode:
+          type: string
+          enum:
+            - teach
+            - ask
+          description: |
+            Interaction mode:
+            - `teach`: Guided instruction with comprehension checks
+            - `ask`: Direct Q&A responses
+
+    ChatResponse:
+      type: object
+      required:
+        - assistantMessage
+        - metadata
+      properties:
+        assistantMessage:
+          type: string
+          description: AI-generated response
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    Message:
+      type: object
+      required:
+        - role
+        - content
+        - timestamp
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: Who sent the message
+        content:
+          type: string
+          description: Message content
+          maxLength: 5000
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+
+    ResponseMetadata:
+      type: object
+      required:
+        - model
+        - tokensUsed
+        - processingTimeMs
+      properties:
+        model:
+          type: string
+          description: AI model used for the response
+          example: "claude-3-opus"
+        tokensUsed:
+          type: integer
+          description: Total tokens consumed (input + output)
+          minimum: 0
+        processingTimeMs:
+          type: integer
+          description: Time taken to generate response in milliseconds
+          minimum: 0
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - RATE_LIMITED
+                - LESSON_NOT_FOUND
+                - AI_UNAVAILABLE
+                - INTERNAL_ERROR
+              description: Machine-readable error code
+            message:
+              type: string
+              description: Human-readable error description
+
+tags:
+  - name: Chat
+    description: AI chat interactions for interactive study mode

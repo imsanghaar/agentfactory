@@ -1,0 +1,32 @@
+# Standard Search Engines
+User-agent: *
+Allow: /
+Disallow: /tags/
+Disallow: /auth/
+Disallow: /search
+Disallow: /tailwind-test
+
+# AI Search Crawlers - EXPLICITLY ALLOWED
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Sitemap
+Sitemap: https://imsanghaar.vercel.app/sitemap.xml

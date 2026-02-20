@@ -1,0 +1,32 @@
+.card {
+  background: var(--gf-card-bg);
+  border: 1px solid var(--gf-card-border);
+  border-radius: var(--gf-card-radius);
+  padding: 0.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.locked {
+  opacity: 0.4;
+}
+
+.icon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gf-badge-earned);
+  line-height: 1;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.date {
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+}

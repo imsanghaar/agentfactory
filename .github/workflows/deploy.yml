@@ -1,0 +1,84 @@
+# Deploy to GitHub Pages
+#
+# Builds Docusaurus site and deploys to GitHub Pages.
+# Content Source: apps/learn-app/docs/ (Git is source of truth)
+#
+# Triggers:
+# - On push to main affecting learn-app or docusaurus libs
+# - Manual workflow_dispatch
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [staging]
+    paths:
+      - "apps/learn-app/**"
+      - "libs/docusaurus/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Docusaurus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core fonts-liberation libvips-dev
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        working-directory: apps/learn-app
+        run: pnpm typecheck
+
+      - name: Build site
+        working-directory: apps/learn-app
+        env:
+          GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
+          PANAVERSITY_SERVER_URL: ${{ secrets.PANAVERSITY_SERVER_URL }}
+          AUTH_URL: ${{ secrets.AUTH_URL }}
+          OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+          BASE_URL: ${{ secrets.BASE_URL }}
+          PANAVERSITY_API_KEY: ${{ secrets.PANAVERSITY_API_KEY }}
+        run: pnpm build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/learn-app/build
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

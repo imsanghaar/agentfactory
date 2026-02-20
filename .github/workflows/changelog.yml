@@ -1,0 +1,145 @@
+name: Update Changelog
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  update-changelog:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update changelog
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import json
+          import urllib.request
+          from datetime import datetime
+          from pathlib import Path
+
+          pr_title = os.environ.get("PR_TITLE", "").strip()
+          pr_number = os.environ.get("PR_NUMBER", "").strip()
+          pr_url = os.environ.get("PR_URL", "").strip()
+          merged_at = os.environ.get("MERGED_AT", "").strip()
+          repo = os.environ.get("REPO", "").strip()
+          token = os.environ.get("GITHUB_TOKEN", "").strip()
+
+          if not pr_title or not pr_number:
+              raise SystemExit("Missing PR metadata; skipping.")
+          if not repo or not token:
+              raise SystemExit("Missing GitHub token or repo; skipping.")
+
+          # Only update changelog if PR touches apps/learn-app/docs/
+          def pr_touches_docs():
+              url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/files?per_page=100"
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "User-Agent": "changelog-bot",
+              }
+              while url:
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=30) as resp:
+                      data = json.load(resp)
+                      for f in data:
+                          filename = f.get("filename", "")
+                          if filename.startswith("apps/learn-app/docs/"):
+                              return True
+                      # Check for pagination
+                      link = resp.headers.get("Link")
+                      url = None
+                      if link:
+                          for part in link.split(","):
+                              if 'rel="next"' in part:
+                                  url = part[part.find("<")+1:part.find(">")]
+                                  break
+              return False
+
+          if not pr_touches_docs():
+              raise SystemExit("PR does not touch apps/learn-app/docs/; skipping.")
+
+          date = merged_at[:10] if merged_at else datetime.utcnow().strftime("%Y-%m-%d")
+          entry = f"- {pr_title} ([#{pr_number}]({pr_url}))"
+          date_heading = f"### {date}"
+          marker = "<!-- CHANGELOG_START"
+
+          path = Path("apps/learn-app/docs/whats-new.md")
+          content = path.read_text(encoding="utf-8")
+
+          # Skip if PR already recorded
+          if f"(#{pr_number})" in content or pr_url in content:
+              print("Changelog already contains this PR; skipping.")
+              raise SystemExit(0)
+
+          # Find marker and insert after it
+          if marker not in content:
+              print("Marker not found in whats-new.md; skipping.")
+              raise SystemExit(1)
+
+          lines = content.split("\n")
+          out = []
+          inserted = False
+
+          for i, line in enumerate(lines):
+              out.append(line)
+              if marker in line and not inserted:
+                  # Look ahead for existing date heading
+                  remaining = lines[i+1:]
+                  found_date_idx = None
+                  for j, next_line in enumerate(remaining):
+                      if next_line.strip() == date_heading:
+                          found_date_idx = j
+                          break
+                      # Stop at next section
+                      if next_line.startswith("## ") or next_line.startswith("---"):
+                          break
+
+                  if found_date_idx is not None:
+                      # Insert entry after existing date heading
+                      for k in range(found_date_idx + 1):
+                          out.append(remaining[k])
+                      out.append(entry)
+                      # Skip lines we already added
+                      lines = lines[:i+1] + remaining[found_date_idx+1:]
+                  else:
+                      # Add new date heading
+                      out.append("")
+                      out.append(date_heading)
+                      out.append("")
+                      out.append(entry)
+                  inserted = True
+
+          path.write_text("\n".join(out), encoding="utf-8")
+          print(f"Added changelog entry for PR #{pr_number}")
+          PY
+
+      - name: Commit and push changelog
+        run: |
+          if git diff --quiet; then
+            echo "No changelog changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/learn-app/docs/whats-new.md
+          git commit -m "docs: update changelog for PR #${{ github.event.pull_request.number }}"
+          git push

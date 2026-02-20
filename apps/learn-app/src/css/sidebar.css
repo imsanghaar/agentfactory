@@ -1,0 +1,405 @@
+/**
+ * ============================================================================
+ * SIDEBAR STYLES — LangChain-Inspired Design
+ * ============================================================================
+ * 
+ * Design Principles (from LangChain/shadcn inspiration):
+ * - Sentence case (NO ALL-CAPS)
+ * - Pill-style active state with primary color background
+ * - Generous spacing (40px+ line height)
+ * - Clear visual hierarchy with section dividers
+ * - Proper chevron indicators
+ * - Muted colors for inactive, primary for active
+ * 
+ * Uses design system variables from custom.css where possible,
+ * with OKLCH fallbacks for reliability.
+ * ============================================================================
+ */
+
+/* ============================================================================
+   0. CSS VARIABLES
+   ============================================================================ */
+
+:root {
+  --doc-sidebar-width: 300px;
+  --doc-sidebar-hidden-width: 30px;
+
+  /* Sidebar-specific colors with fallbacks */
+  --sidebar-bg: oklch(0.985 0 0);
+  --sidebar-text: oklch(0.45 0 0);
+  --sidebar-text-muted: oklch(0.55 0 0);
+  --sidebar-border: oklch(0.9 0 0);
+  --sidebar-hover-bg: oklch(0.95 0 0);
+  --sidebar-active-bg: var(--sidebar-primary);
+  --sidebar-active-text: var(--sidebar-primary-foreground);
+}
+
+html[data-theme="dark"] {
+  --sidebar-bg: oklch(0.15 0 0);
+  --sidebar-text: oklch(0.85 0 0);
+  --sidebar-text-muted: oklch(0.6 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-hover-bg: oklch(0.2 0 0);
+  --sidebar-active-bg: var(--sidebar-primary);
+  --sidebar-active-text: var(--sidebar-primary-foreground);
+}
+
+/* ============================================================================
+   1. SIDEBAR CONTAINER
+   ============================================================================ */
+
+/* FIX: Override default Docusaurus sidebar padding that uses navbar height */
+/* This targets CSS module classes like sidebar_kgCq that get padding-top: 60px in production */
+.theme-doc-sidebar-container,
+aside[class*='sidebar'],
+div[class*='sidebar_'] {
+  padding-top: 0 !important;
+}
+
+.theme-doc-sidebar-container {
+  background: transparent !important;
+  border-right: 1px solid var(--sidebar-border) !important;
+}
+
+/* Sticky positioning below navbar */
+@media (min-width: 997px) {
+  .theme-doc-sidebar-container [class*='sidebarViewport'] {
+    position: sticky !important;
+    top: var(--ifm-navbar-height) !important;
+    height: calc(100vh - var(--ifm-navbar-height)) !important;
+    max-height: calc(100vh - var(--ifm-navbar-height)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+/* Inner padding + prevent horizontal overflow */
+.sidebar {
+  padding: 1rem 0.75rem !important;
+  overflow-x: hidden !important;
+}
+
+/* ============================================================================
+   2. MENU STRUCTURE
+   ============================================================================ */
+
+/* Apply overflow-x hidden to menu (inside sticky container) to prevent horizontal scroll */
+.menu {
+  margin-top: 0.25rem !important;
+  padding: 0 !important;
+  padding-top: 1rem !important;
+  overflow-x: hidden !important;
+}
+
+.menu__list {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  overflow-x: hidden !important;
+}
+
+.menu__list-item {
+  margin-bottom: 0.25rem;
+}
+
+/* ============================================================================
+   3. CATEGORY HEADERS (Parts/Chapters) — NO ALL-CAPS
+   ============================================================================ */
+
+.menu__link--sublist {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: var(--sidebar-text) !important;
+  background: transparent !important;
+  border-radius: 6px !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.menu__link--sublist:hover {
+  background: transparent !important;
+  color: var(--sidebar-text) !important;
+  text-decoration: none !important;
+}
+
+/* Remove default indicator dots */
+.menu__link--sublist::before {
+  display: none !important;
+}
+
+/* Hide our custom chevron - Docusaurus already provides one */
+.menu__link--sublist::after {
+  display: none !important;
+}
+
+/* Make the Docusaurus dropdown caret smaller */
+.menu__caret {
+  transform: scale(0.75) !important;
+  opacity: 0.6 !important;
+  margin-right: 1rem !important;
+  /* Spacing from scrollbar */
+}
+
+/* Active/expanded category */
+.menu__list-item:not(.menu__list-item--collapsed)>.menu__link--sublist {
+  color: var(--sidebar-text) !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================================
+   4. NESTED CONTENT — Section Dividers & Indentation
+   ============================================================================ */
+
+.menu__list .menu__list {
+  padding-left: 0 !important;
+  margin: 0.5rem 0 0.75rem 0 !important;
+  border-left: 2px solid var(--sidebar-border) !important;
+  margin-left: 0.75rem !important;
+  padding-left: 0.75rem !important;
+}
+
+/* ============================================================================
+   5. MENU LINKS — Clean, Readable Items
+   ============================================================================ */
+
+.menu__link {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  color: var(--sidebar-text-muted) !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+}
+
+/* Remove default bullets */
+.menu__link::before {
+  display: none !important;
+}
+
+/* Hover state - primary color, no background */
+.menu__link:hover {
+  background: transparent !important;
+  color: var(--sidebar-primary) !important;
+  text-decoration: none !important;
+}
+
+/* ============================================================================
+   6. ACTIVE STATE — Primary text color (not background)
+   ============================================================================ */
+
+.menu__link--active {
+  background: transparent !important;
+  color: var(--sidebar-primary) !important;
+  font-weight: 600 !important;
+}
+
+.menu__link--active:hover {
+  background: transparent !important;
+  color: var(--sidebar-primary) !important;
+}
+
+/* ============================================================================
+   7. DEEPLY NESTED ITEMS
+   ============================================================================ */
+
+.menu__list .menu__list .menu__link {
+  font-size: 0.8125rem !important;
+  padding: 0.5rem 1rem !important;
+  color: var(--sidebar-text-muted) !important;
+}
+
+/* Consistent hover - primary green for all nesting levels */
+.menu__list .menu__list .menu__link:hover {
+  color: var(--sidebar-primary) !important;
+}
+
+/* Consistent active - primary green for all nesting levels */
+.menu__list .menu__list .menu__link--active {
+  background: transparent !important;
+  color: var(--sidebar-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Third level and deeper - same consistent colors */
+.menu__list .menu__list .menu__list .menu__link:hover {
+  color: var(--sidebar-primary) !important;
+}
+
+.menu__list .menu__list .menu__list .menu__link--active {
+  color: var(--sidebar-primary) !important;
+}
+
+/* ============================================================================
+   7a. FORCE TRANSPARENT BACKGROUNDS — Override Docusaurus defaults
+   ============================================================================ */
+
+/* High-specificity overrides to ensure no background on any active state */
+.theme-doc-sidebar-container .menu__link--active,
+.theme-doc-sidebar-container .menu__link--active:hover,
+.theme-doc-sidebar-container .menu__link--active:focus,
+.theme-doc-sidebar-container .menu__list-item--collapsed>.menu__link--active,
+.theme-doc-sidebar-container .menu__list .menu__link--active,
+.theme-doc-sidebar-container .menu__list .menu__list .menu__link--active,
+.theme-doc-sidebar-container .menu__list .menu__list .menu__list .menu__link--active,
+nav[class*='sidebar'] .menu__link--active,
+aside[class*='sidebar'] .menu__link--active {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Also ensure sublist (category) active states have no background */
+.theme-doc-sidebar-container .menu__link--sublist-caret,
+.theme-doc-sidebar-container .menu__link--sublist-caret:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* THE ACTUAL FIX: Override the collapsible wrapper div that has the background */
+.menu__list-item-collapsible,
+.menu__list-item-collapsible--active,
+.menu__list-item-collapsible:hover,
+.menu__list-item-collapsible--active:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Third level nesting - same padding */
+.menu__list .menu__list .menu__list .menu__link {
+  font-size: 0.8125rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* ============================================================================
+   8. SCROLLBAR STYLING
+   ============================================================================ */
+
+.theme-doc-sidebar-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.theme-doc-sidebar-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.theme-doc-sidebar-container::-webkit-scrollbar-thumb {
+  background: var(--sidebar-border);
+  border-radius: 3px;
+}
+
+.theme-doc-sidebar-container::-webkit-scrollbar-thumb:hover {
+  background: var(--sidebar-text-muted);
+}
+
+/* Firefox scrollbar */
+.theme-doc-sidebar-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-border) transparent;
+}
+
+/* ============================================================================
+   9. COLLAPSE BUTTON — Hidden (unnecessary UI clutter)
+   ============================================================================ */
+
+[class*='collapseSidebarButton'] {
+  display: none !important;
+}
+
+/* ============================================================================
+   10. MOBILE SIDEBAR (Hamburger Menu Overlay)
+   ============================================================================ */
+
+/* Docusaurus mobile sidebar (navbar-sidebar) - the overlay that appears when hamburger is clicked */
+.navbar-sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 80vw !important;
+  max-width: 350px !important;
+  background: var(--sidebar-bg) !important;
+  z-index: 100 !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.3s ease !important;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15) !important;
+  overflow-y: auto !important;
+}
+
+.navbar-sidebar--show {
+  transform: translateX(0) !important;
+}
+
+/* Backdrop overlay when sidebar is open */
+.navbar-sidebar__backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 99 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+.navbar-sidebar--show + .navbar-sidebar__backdrop,
+.navbar-sidebar__backdrop--show {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .navbar-sidebar {
+  background: var(--sidebar-bg) !important;
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+@media (max-width: 996px) {
+  .theme-doc-sidebar-container {
+    background: var(--sidebar-bg) !important;
+  }
+
+  /* Larger touch targets on mobile */
+  .menu__link {
+    padding: 0.875rem 1rem !important;
+  }
+
+  .menu__link--sublist {
+    padding: 0.875rem 1rem !important;
+  }
+}
+
+/* ============================================================================
+   11. FOCUS STATES (Accessibility)
+   ============================================================================ */
+
+.menu__link:focus-visible,
+.menu__link--sublist:focus-visible {
+  outline: 2px solid var(--sidebar-active-bg) !important;
+  outline-offset: 2px !important;
+}
+
+/* ============================================================================
+   12. SECTION SPACING — Visual Grouping
+   ============================================================================ */
+
+/* Add spacing between top-level parts */
+.theme-doc-sidebar-menu>.menu__list-item {
+  margin-bottom: 0 !important;
+}
+
+/* Subtle divider line between major sections */
+.theme-doc-sidebar-menu>.menu__list-item:not(:first-child) {
+  border-top: 1px solid var(--sidebar-border) !important;
+  padding-top: 0.5rem !important;
+  margin-top: 0.5rem !important;
+}

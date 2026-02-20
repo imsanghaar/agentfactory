@@ -1,0 +1,662 @@
+---
+sidebar_position: 8
+title: "Complete TaskManager Capstone"
+description: "Review, debug, and deploy your complete TaskManager ChatGPT App with production security"
+keywords: ["capstone", "debugging", "deployment", "ChatGPT App", "production", "widgetCSP", "widgetDomain", "security"]
+chapter: 42
+lesson: 8
+duration_minutes: 60
+
+# HIDDEN SKILLS METADATA
+skills:
+  - name: "Complete Implementation Review"
+    proficiency_level: "B1"
+    category: "Applied"
+    bloom_level: "Evaluate"
+    digcomp_area: "Software Development"
+    measurable_at_this_level: "Student can trace data flow through complete TaskManager implementation"
+
+  - name: "ChatGPT App Debugging"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Analyze"
+    digcomp_area: "Technical Problem-Solving"
+    measurable_at_this_level: "Student can diagnose common widget issues systematically"
+
+  - name: "Deployment Considerations"
+    proficiency_level: "B1"
+    category: "Conceptual"
+    bloom_level: "Understand"
+    digcomp_area: "Software Development"
+    measurable_at_this_level: "Student can explain production requirements beyond ngrok"
+
+  - name: "Production Security Metadata"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "Security"
+    measurable_at_this_level: "Student can configure widgetCSP, widgetDomain, and visibility metadata"
+
+learning_objectives:
+  - objective: "Review complete TaskManager implementation and trace data flow"
+    proficiency_level: "B1"
+    bloom_level: "Evaluate"
+    assessment_method: "Architecture walkthrough explaining each layer's role"
+
+  - objective: "Diagnose and resolve common ChatGPT App issues"
+    proficiency_level: "B1"
+    bloom_level: "Analyze"
+    assessment_method: "Successfully identify issues in debugging scenarios"
+
+  - objective: "Understand requirements for production deployment"
+    proficiency_level: "B1"
+    bloom_level: "Understand"
+    assessment_method: "List infrastructure requirements for production"
+
+  - objective: "Configure production security metadata for ChatGPT Apps"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Correctly set widgetCSP, widgetDomain, and visibility annotations"
+
+cognitive_load:
+  new_concepts: 3
+  assessment: "Introduces widgetCSP, widgetDomain, and visibility metadata for production - manageable load"
+
+differentiation:
+  extension_for_advanced: "Add task categories and due dates; implement OAuth authentication"
+  remedial_for_struggling: "Focus on debugging exercises; ensure core functionality works before extensions"
+
+generated_by: content-implementer
+source_spec: specs/048-chapter-42-openai-apps-sdk
+created: 2025-12-28
+last_modified: 2025-12-28
+version: 2.0.0
+---
+
+# Complete TaskManager Capstone
+
+You've built TaskManager piece by piece across seven lessons. Starting from a 50-line "Hello World" widget, you added interactivity with `sendFollowUpMessage`, task display with `structuredContent` and `_meta`, action buttons with `callTool`, state persistence with `widgetState`, and learned the React alternative with `@openai/apps-sdk-ui`. This capstone brings it all together.
+
+In this lesson, you'll review the complete implementation, learn to debug common issues, configure production security metadata, and understand deployment requirements. By the end, you'll have a production-ready TaskManager—and the skills to build ChatGPT Apps for any domain.
+
+## Complete Implementation
+
+Here's the full TaskManager server combining everything from Lessons 2-6:
+
+```python
+import mcp.types as types
+from mcp.server.fastmcp import FastMCP
+
+MIME_TYPE = "text/html+skybridge"
+
+# In-memory task storage
+TASKS = [
+    {"id": 1, "title": "Buy groceries", "done": False},
+    {"id": 2, "title": "Review pull request", "done": False},
+    {"id": 3, "title": "Call mom", "done": True},
+]
+
+WIDGET_HTML = '''<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; margin: 0; padding: 16px; }
+    .container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 450px; }
+    h2 { margin: 0 0 16px 0; color: #333; }
+    .stats { color: #666; font-size: 14px; margin-bottom: 16px; }
+    .toolbar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .toolbar button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; }
+    .toolbar button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .bulk-delete { background: #e53e3e; color: white; }
+    .bulk-delete:hover:not(:disabled) { background: #c53030; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { padding: 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; }
+    li:last-child { border-bottom: none; }
+    li.selected { background: #f0f0ff; }
+    .select-box { width: 20px; height: 20px; border: 2px solid #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: #667eea; }
+    .select-box.checked { border-color: #667eea; background: #f0f0ff; }
+    .done { text-decoration: line-through; color: #999; }
+    .task-title { flex: 1; }
+    .checkbox { width: 24px; height: 24px; border: 2px solid #667eea; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .checkbox:hover { background: #f0f0ff; }
+    .checkbox.checked { background: #667eea; color: white; }
+    .delete-btn { background: none; border: none; color: #999; cursor: pointer; font-size: 18px; padding: 4px 8px; }
+    .delete-btn:hover { color: #e53e3e; }
+    .add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+    .add-input { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; }
+    .add-input:focus { outline: none; border-color: #667eea; }
+    .add-btn { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+    .refresh-btn { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>TaskManager</h2>
+    <p class="stats" id="stats">Loading...</p>
+    <div class="add-form">
+      <input type="text" class="add-input" id="new-task" placeholder="Add a task..." onkeypress="handleKeyPress(event)">
+      <button class="add-btn" onclick="addTask()">Add</button>
+    </div>
+    <div class="toolbar">
+      <button id="bulk-delete" class="bulk-delete" onclick="bulkDelete()" disabled>Delete Selected</button>
+    </div>
+    <ul id="task-list"></ul>
+    <button class="refresh-btn" onclick="refresh()">Refresh</button>
+  </div>
+  <script>
+    let state = { selectedIds: [] };
+
+    function initState() {
+      const saved = window.openai?.widgetState;
+      if (saved) state = { ...state, ...saved };
+    }
+
+    function saveState() {
+      window.openai?.setWidgetState?.(state);
+    }
+
+    function toggleSelection(taskId) {
+      const idx = state.selectedIds.indexOf(taskId);
+      if (idx === -1) state.selectedIds.push(taskId);
+      else state.selectedIds.splice(idx, 1);
+      saveState();
+      renderTasks();
+    }
+
+    function isSelected(taskId) {
+      return state.selectedIds.includes(taskId);
+    }
+
+    const summary = window.openai?.toolOutput;
+    const meta = window.openai?.toolResponseMetadata;
+    const tasks = meta?.tasks || [];
+
+    if (summary) {
+      document.getElementById('stats').textContent =
+        summary.total + ' tasks (' + summary.pending + ' pending, ' + summary.completed + ' done)';
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('task-list');
+      list.innerHTML = '';
+      if (tasks.length === 0) {
+        list.innerHTML = '<li style="color:#999;justify-content:center;">No tasks yet. Add one above!</li>';
+        return;
+      }
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        const selected = isSelected(task.id);
+        li.className = selected ? 'selected' : '';
+        li.innerHTML = `
+          <div class="select-box ${selected ? 'checked' : ''}" onclick="toggleSelection(${task.id})">${selected ? '●' : ''}</div>
+          <div class="checkbox ${task.done ? 'checked' : ''}" onclick="toggleTask(${task.id})">${task.done ? '✓' : ''}</div>
+          <span class="task-title ${task.done ? 'done' : ''}">${task.title}</span>
+          <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
+        `;
+        list.appendChild(li);
+      });
+      updateSelectionCount();
+    }
+
+    function updateSelectionCount() {
+      const count = state.selectedIds.length;
+      const btn = document.getElementById('bulk-delete');
+      if (btn) {
+        btn.textContent = count > 0 ? 'Delete ' + count + ' Selected' : 'Delete Selected';
+        btn.disabled = count === 0;
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') addTask();
+    }
+
+    async function addTask() {
+      const input = document.getElementById('new-task');
+      const title = input.value.trim();
+      if (!title) return;
+      input.value = '';
+      window.openai?.sendFollowUpMessage?.({ prompt: 'Add task: ' + title });
+    }
+
+    async function bulkDelete() {
+      for (const id of state.selectedIds) {
+        await window.openai?.callTool?.('delete_task', { task_id: id });
+      }
+      state.selectedIds = [];
+      saveState();
+      refresh();
+    }
+
+    async function toggleTask(taskId) {
+      await window.openai?.callTool?.('complete_task', { task_id: taskId });
+      refresh();
+    }
+
+    async function deleteTask(taskId) {
+      state.selectedIds = state.selectedIds.filter(id => id !== taskId);
+      saveState();
+      await window.openai?.callTool?.('delete_task', { task_id: taskId });
+      refresh();
+    }
+
+    function refresh() {
+      window.openai?.sendFollowUpMessage?.({ prompt: 'Show my tasks' });
+    }
+
+    initState();
+    renderTasks();
+  </script>
+</body>
+</html>'''
+
+mcp = FastMCP("TaskManager")
+
+@mcp.tool()
+def show_tasks() -> types.CallToolResult:
+    """Display the task list widget."""
+    pending = len([t for t in TASKS if not t["done"]])
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text=f"Showing {len(TASKS)} tasks")],
+        structuredContent={"total": len(TASKS), "pending": pending, "completed": len(TASKS) - pending},
+        _meta={
+            "tasks": TASKS,
+            "openai.com/widget": types.EmbeddedResource(
+                type="resource",
+                resource=types.TextResourceContents(uri="ui://tasks", mimeType=MIME_TYPE, text=WIDGET_HTML)
+            )
+        }
+    )
+
+@mcp.tool()
+def add_task(title: str) -> types.CallToolResult:
+    """Add a new task."""
+    new_id = max([t["id"] for t in TASKS], default=0) + 1
+    TASKS.append({"id": new_id, "title": title, "done": False})
+    pending = len([t for t in TASKS if not t["done"]])
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text=f"Added: {title}")],
+        structuredContent={"total": len(TASKS), "pending": pending, "completed": len(TASKS) - pending},
+        _meta={
+            "tasks": TASKS,
+            "openai.com/widget": types.EmbeddedResource(
+                type="resource",
+                resource=types.TextResourceContents(uri="ui://tasks", mimeType=MIME_TYPE, text=WIDGET_HTML)
+            )
+        }
+    )
+
+@mcp.tool(annotations={"openai/widgetAccessible": True})
+def complete_task(task_id: int) -> types.CallToolResult:
+    """Toggle a task's completion status."""
+    for task in TASKS:
+        if task["id"] == task_id:
+            task["done"] = not task["done"]
+            pending = len([t for t in TASKS if not t["done"]])
+            return types.CallToolResult(
+                content=[types.TextContent(type="text", text="Task toggled")],
+                structuredContent={"success": True, "task_id": task_id, "done": task["done"]},
+                _meta={
+                    "tasks": TASKS,
+                    "openai.com/widget": types.EmbeddedResource(
+                        type="resource",
+                        resource=types.TextResourceContents(uri="ui://tasks", mimeType=MIME_TYPE, text=WIDGET_HTML)
+                    )
+                }
+            )
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text="Not found")],
+        structuredContent={"success": False}
+    )
+
+@mcp.tool(annotations={"openai/widgetAccessible": True})
+def delete_task(task_id: int) -> types.CallToolResult:
+    """Delete a task by ID."""
+    global TASKS
+    original_len = len(TASKS)
+    TASKS = [t for t in TASKS if t["id"] != task_id]
+    success = len(TASKS) < original_len
+    pending = len([t for t in TASKS if not t["done"]])
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text="Deleted" if success else "Not found")],
+        structuredContent={"success": success, "total": len(TASKS), "pending": pending},
+        _meta={
+            "tasks": TASKS,
+            "openai.com/widget": types.EmbeddedResource(
+                type="resource",
+                resource=types.TextResourceContents(uri="ui://tasks", mimeType=MIME_TYPE, text=WIDGET_HTML)
+            )
+        }
+    )
+
+if __name__ == "__main__":
+    import uvicorn
+    app = mcp.sse_app()
+    uvicorn.run(app, host="0.0.0.0", port=8001)
+```
+
+## Architecture Review
+
+Trace a complete interaction through all layers:
+
+```
+User: "Add task: Buy groceries"
+           │
+           ▼
+┌─────────────────────────────────────────────┐
+│ Layer 1: ChatGPT UI                          │
+│ • Receives prompt                            │
+│ • Model decides to call add_task tool        │
+│ • Sends request to MCP server                │
+└─────────────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────┐
+│ Layer 3: MCP Server (main.py)                │
+│ • add_task("Buy groceries") executes         │
+│ • Creates task with new ID                   │
+│ • Returns CallToolResult with:               │
+│   - structuredContent: task counts           │
+│   - _meta["tasks"]: full task list           │
+│   - _meta["openai.com/widget"]: widget HTML  │
+└─────────────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────┐
+│ Layer 1: ChatGPT UI                          │
+│ • Receives response with widget              │
+│ • Creates sandboxed iframe                   │
+│ • Model narrates: "Added: Buy groceries"     │
+└─────────────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────┐
+│ Layer 2: Widget (iframe)                     │
+│ • Reads toolOutput for stats                 │
+│ • Reads toolResponseMetadata for tasks       │
+│ • Restores state from widgetState            │
+│ • Renders interactive task list              │
+└─────────────────────────────────────────────┘
+```
+
+## The Debugging Checklist
+
+When something doesn't work, check in order:
+
+| Step | Check | Command/Action |
+|------|-------|----------------|
+| 1 | Server running? | `curl http://localhost:8001` |
+| 2 | ngrok running? | Check ngrok terminal for URL |
+| 3 | App registered? | ChatGPT Settings → Apps |
+| 4 | URL correct? | Must end with `/mcp` |
+| 5 | Tool discovered? | Type `@TaskManager` in ChatGPT |
+| 6 | Tool called? | Check server logs |
+| 7 | Widget delivered? | Response has `_meta["openai.com/widget"]` |
+| 8 | MIME type correct? | Must be `text/html+skybridge` |
+
+### Common Issues
+
+**Widget shows "Loading..." forever**
+
+Check MIME type:
+```python
+# WRONG
+mimeType="text/html"
+
+# CORRECT
+mimeType="text/html+skybridge"
+```
+
+**callTool doesn't work**
+
+Check tool annotation:
+```python
+# WRONG - missing widgetAccessible
+@mcp.tool()
+def complete_task(task_id: int):
+
+# CORRECT
+@mcp.tool(annotations={"openai/widgetAccessible": True})
+def complete_task(task_id: int):
+```
+
+**Widget shows old version**
+
+ChatGPT caches widgets aggressively. To force refresh:
+1. Delete the app in ChatGPT Settings
+2. Restart ngrok (gets new URL)
+3. Re-register the app with new URL
+4. Test in a new conversation
+
+**Buttons don't respond**
+
+Use optional chaining for all `window.openai` calls:
+```javascript
+// WRONG - crashes if openai not available
+window.openai.callTool('complete_task', { task_id: 1 });
+
+// CORRECT - safe
+window.openai?.callTool?.('complete_task', { task_id: 1 });
+```
+
+## Production Considerations
+
+ngrok is for development. Production requires:
+
+| Development | Production |
+|-------------|------------|
+| ngrok (temporary URL) | Permanent HTTPS domain |
+| In-memory storage | Database (PostgreSQL, etc.) |
+| No authentication | OAuth 2.1 |
+| Single user | Multi-tenant |
+| `uv run main.py` | Container deployment |
+
+### Database Storage
+
+Replace in-memory list with database:
+
+```python
+# Development
+TASKS = [{"id": 1, "title": "...", "done": False}]
+
+# Production
+from sqlalchemy.orm import Session
+from your_app.database import engine, Task
+
+def get_tasks(user_id: str):
+    with Session(engine) as session:
+        return session.query(Task).filter_by(user_id=user_id).all()
+```
+
+### Permanent URL
+
+Deploy to Railway, Render, or any cloud platform:
+
+```bash
+# Example with Railway
+railway login
+railway init
+railway up
+# Result: https://your-app.up.railway.app/mcp
+```
+
+### OAuth Authentication
+
+For multi-user apps, implement OAuth 2.1:
+
+```python
+@mcp.tool(
+    annotations={
+        "openai/widgetAccessible": True,
+        "securitySchemes": [{"type": "oauth2", "scopes": ["tasks:read"]}]
+    }
+)
+def show_tasks(user_id: str) -> types.CallToolResult:
+    # user_id comes from validated OAuth token
+    tasks = get_tasks_for_user(user_id)
+    # ...
+```
+
+### Widget Security Metadata
+
+Production ChatGPT Apps require security metadata. These annotations control what your widget can access:
+
+#### Content Security Policy (widgetCSP)
+
+The `openai/widgetCSP` annotation declares which external domains your widget can connect to:
+
+```python
+@mcp.resource("ui://tasks")
+def get_widget() -> types.Resource:
+    return types.Resource(
+        uri="ui://tasks",
+        mimeType="text/html+skybridge",
+        text=WIDGET_HTML,
+        annotations={
+            "openai/widgetCSP": {
+                "connect-src": ["https://api.yourdomain.com"],
+                "img-src": ["https://cdn.yourdomain.com"],
+                "frame-src": [],
+                "redirect-src": ["https://yourdomain.com"]
+            }
+        }
+    )
+```
+
+| CSP Directive | Purpose |
+|---------------|---------|
+| `connect-src` | API endpoints the widget can call |
+| `img-src` | Image sources the widget can load |
+| `frame-src` | Iframes the widget can embed |
+| `redirect-src` | URLs the widget can redirect to |
+
+Without `widgetCSP`, your widget cannot make external network requests in production.
+
+#### Widget Domain (widgetDomain)
+
+The `openai/widgetDomain` annotation assigns a dedicated origin for your widget:
+
+```python
+annotations={
+    "openai/widgetDomain": "https://chatgpt.com",
+    "openai/widgetCSP": { ... }
+}
+```
+
+This enables:
+- Fullscreen mode functionality
+- API allowlisting for your domain
+- Proper CORS handling
+
+#### Private Tools (visibility)
+
+Some tools should only be callable from widgets, not by the model directly. Use `openai/visibility: "private"`:
+
+```python
+@mcp.tool(
+    annotations={
+        "openai/widgetAccessible": True,
+        "openai/visibility": "private"  # Hidden from model, widget-only
+    }
+)
+def internal_action(task_id: int) -> types.CallToolResult:
+    """This tool is only callable via widget's callTool, not by ChatGPT model."""
+    # ...
+```
+
+| Visibility | Model Can Call | Widget Can Call |
+|------------|----------------|-----------------|
+| (default) | Yes | If widgetAccessible |
+| `"private"` | No | If widgetAccessible |
+
+Use private visibility for:
+- Internal widget actions (bulk operations, UI state syncing)
+- Sensitive operations that shouldn't be model-triggered
+- Helper tools that only make sense from widget context
+
+### Complete Production Metadata Example
+
+Here's a production-ready tool with all security annotations:
+
+```python
+@mcp.tool(
+    annotations={
+        "openai/widgetAccessible": True,
+        "openai/visibility": "private",
+    }
+)
+def bulk_delete_tasks(task_ids: list[int]) -> types.CallToolResult:
+    """Delete multiple tasks at once. Widget-only, not model-callable."""
+    for task_id in task_ids:
+        TASKS[:] = [t for t in TASKS if t["id"] != task_id]
+
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text=f"Deleted {len(task_ids)} tasks")],
+        structuredContent={"deleted": len(task_ids), "remaining": len(TASKS)},
+        _meta={
+            "tasks": TASKS,
+            "openai.com/widget": types.EmbeddedResource(
+                type="resource",
+                resource=types.TextResourceContents(
+                    uri="ui://tasks",
+                    mimeType=MIME_TYPE,
+                    text=WIDGET_HTML
+                )
+            )
+        }
+    )
+```
+
+## What You Built
+
+Across eight lessons, you built a complete ChatGPT App:
+
+| Lesson | Feature | Pattern |
+|--------|---------|---------|
+| L1 | Architecture understanding | Three layers, data flow |
+| L2 | First widget | `text/html+skybridge`, FastMCP |
+| L3 | Refresh button | `sendFollowUpMessage` |
+| L4 | Task list display | `structuredContent` + `_meta` |
+| L5 | Complete/Delete buttons | `callTool`, `widgetAccessible` |
+| L6 | State persistence | `widgetState`, display modes |
+| L7 | React alternative | `apps-sdk-ui`, React hooks |
+| L8 | Production-ready | Security metadata, deployment |
+
+The patterns you learned apply to any domain:
+- Replace tasks with customers, orders, or any data type
+- The three-layer architecture stays the same
+- `callTool` for mutations, `sendFollowUpMessage` for prompts
+- `structuredContent` for model narration, `_meta` for widget data
+- `widgetState` for UI persistence
+
+## Try With AI
+
+### Prompt 1: Add Task Categories
+
+```
+Add a category field to tasks (Work, Personal, Urgent). Update the add_task tool to accept an optional category parameter. In the widget, display categories as colored badges next to task titles. Add filter buttons at the top to show only tasks in a specific category.
+```
+
+**What you're learning:** Extending data structures without breaking existing functionality. This is how production apps evolve.
+
+### Prompt 2: Debug This Broken Widget
+
+```
+This widget doesn't work. Find and fix the three bugs:
+
+1. const tasks = window.openai.toolOutput.tasks;
+2. function addTask() { window.openai.callTool('add_task', {title: 'New'}); }
+3. The tool is missing something that prevents callTool from working.
+
+Explain each bug and show the fix.
+```
+
+**What you're learning:** Systematic debugging skills. These three bugs represent the most common ChatGPT App issues.
+
+### Prompt 3: Design Your Domain App
+
+```
+I want to build a ChatGPT App for [your domain - e.g., recipe manager, expense tracker, bookmark organizer]. Design the data structure, list the tools needed, describe what structuredContent vs _meta should contain, and outline the widget UI. Don't write code yet - just the design.
+```
+
+**What you're learning:** Applying TaskManager patterns to new domains. The design phase before coding prevents wasted effort.

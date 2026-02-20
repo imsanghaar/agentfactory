@@ -1,0 +1,341 @@
+/**
+ * AI NATIVE DESIGN SYSTEM v3.0 (Tailwind v4 + OKLCH)
+ * Sharp, Technical, Content-First
+ */
+
+@import "./sidebar.css";
+@import "./doc-pages.css";
+
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+/* Docusaurus Dark Mode Integration */
+@custom-variant dark (&:is([data-theme='dark'] *));
+
+@theme inline {
+    /* Custom breakpoints */
+    --breakpoint-xs: 400px;
+    /* Match Docusaurus sidebar (997px) */
+    --breakpoint-docs: 997px;
+
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Legacy Semantic Colors (Mapped for backward compatibility) */
+    --color-info: var(--info);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-danger: var(--destructive);
+    /* Map danger to destructive */
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 8px);
+    --radius-3xl: calc(var(--radius) + 12px);
+    --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+    /* Font Definitions */
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Shadcn OKLCH Variables */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.28 0.12 255);
+    --primary-foreground: oklch(0.98 0.02 166);
+    --secondary: oklch(0.967 0.001 286.375);
+    --secondary-foreground: oklch(0.21 0.006 285.885);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.58 0.22 27);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.85 0.13 250);
+    --chart-2: oklch(0.77 0.15 255);
+    --chart-3: oklch(0.70 0.15 260);
+    --chart-4: oklch(0.60 0.13 255);
+    --chart-5: oklch(0.51 0.10 265);
+    --radius: 0px;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.28 0.12 255);
+    --sidebar-primary-foreground: oklch(0.98 0.02 166);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+
+    /* Legacy Semantic Colors (OKLCH approximations) */
+    --info: oklch(0.704 0.14 240);
+    /* Sky 500 equivalent */
+    --success: oklch(0.68 0.16 142);
+    /* Green 500 equivalent */
+    --warning: oklch(0.77 0.16 77);
+    /* Amber 500 equivalent */
+}
+
+html[data-theme='dark'] {
+    /* Darker background (Near Black) to match footer/overlay and prevent visual glitches */
+    --background: oklch(0.01 0 0);
+    --foreground: oklch(0.985 0 0);
+    /* Slightly lighter card for contrast */
+    --card: oklch(0.12 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.12 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.65 0.14 255);
+    --primary-foreground: oklch(0.98 0.02 166);
+    --secondary: oklch(0.20 0.006 286);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.20 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.25 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.85 0.13 250);
+    --chart-2: oklch(0.77 0.15 255);
+    --chart-3: oklch(0.70 0.15 260);
+    --chart-4: oklch(0.60 0.13 255);
+    --chart-5: oklch(0.51 0.10 265);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.65 0.14 255);
+    /* Match --primary for consistency */
+    --sidebar-primary-foreground: oklch(0.26 0.05 173);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+
+    /* Legacy Semantic Colors (OKLCH approximations for Dark Mode) */
+    --info: oklch(0.65 0.14 240);
+    --success: oklch(0.65 0.16 142);
+    --warning: oklch(0.75 0.16 77);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+        border-radius: 0px !important;
+        /* Strict Enforcement */
+    }
+
+    html,
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        /* Prevent elastic scrolling showing wrong background */
+        overscroll-behavior: none;
+    }
+
+    code {
+        font-family: var(--font-mono);
+    }
+
+    /* Exception class for components that need rounded corners (e.g., macOS simulations) */
+    /* These MUST be inside @layer base to override the * rule above with !important */
+    .allow-rounded,
+    .allow-rounded * {
+        border-radius: unset !important;
+    }
+
+    .allow-rounded .rounded-full {
+        border-radius: 9999px !important;
+    }
+
+    .allow-rounded .rounded-xl {
+        border-radius: 0.75rem !important;
+    }
+
+    .allow-rounded .rounded-t-xl {
+        border-top-left-radius: 0.75rem !important;
+        border-top-right-radius: 0.75rem !important;
+    }
+
+    .allow-rounded .rounded-b-2xl {
+        border-bottom-left-radius: 1rem !important;
+        border-bottom-right-radius: 1rem !important;
+    }
+
+    .allow-rounded .rounded-lg {
+        border-radius: 0.5rem !important;
+    }
+
+    .allow-rounded .rounded-md {
+        border-radius: 0.375rem !important;
+    }
+
+    .allow-rounded .rounded-t-md {
+        border-top-left-radius: 0.375rem !important;
+        border-top-right-radius: 0.375rem !important;
+    }
+}
+
+/* ============================================
+   Docusaurus Tabs - Shadcn-Inspired Styling
+   ============================================ */
+
+/* Tab list container - shadcn muted background */
+ul.tabs[role="tablist"] {
+    display: inline-flex !important;
+    height: 2.5rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: var(--muted) !important;
+    padding: 0.25rem !important;
+    gap: 0.125rem !important;
+    margin-bottom: 1rem !important;
+    list-style: none !important;
+    border: none !important;
+}
+
+/* Individual tab items */
+.tabs__item {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    color: var(--muted-foreground) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 150ms ease !important;
+    margin: 0 !important;
+}
+
+/* Tab hover state */
+.tabs__item:hover {
+    color: var(--foreground) !important;
+    background-color: transparent !important;
+}
+
+/* Active tab - shadcn active state */
+.tabs__item--active,
+.tabs__item--active:hover {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+}
+
+/* Remove default Docusaurus underline */
+.tabs__item--active {
+    border-bottom: none !important;
+}
+
+/* Focus visible state for accessibility */
+.tabs__item:focus-visible {
+    outline: 2px solid var(--ring) !important;
+    outline-offset: 2px !important;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .tabs__item--active,
+[data-theme='dark'] .tabs__item--active:hover {
+    background-color: var(--card) !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3) !important;
+}
+/* ============================================
+   Factory Dashboard Navbar Link
+   ============================================ */
+
+.navbar-factory-link {
+    font-family: var(--font-mono) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.025em !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+}
+
+.navbar-factory-link:hover {
+    color: oklch(0.77 0.16 77) !important; /* Amber accent */
+}
+
+[data-theme='dark'] .navbar-factory-link:hover {
+    color: oklch(0.85 0.18 77) !important; /* Brighter amber in dark mode */
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }

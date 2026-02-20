@@ -1,0 +1,41 @@
+---
+sidebar_position: 63
+title: "Chapter 63: Data Engineering for Fine-Tuning"
+description: "Design, clean, and version datasets that power supervised fine-tuning"
+---
+
+# Chapter 63: Data Engineering for Fine-Tuning
+
+High-quality data wins fine-tuning. This chapter builds a `fine-tuning-data` skill to design tasks, clean/validate datasets, generate synthetic data, and version everything for reproducibility.
+
+---
+
+## Goals
+
+- Define data quality principles for SFT datasets
+- Structure instruction/response formats for your tasks
+- Generate and validate synthetic data safely
+- Version datasets for reproducibility
+- Package the process into a reusable data-engineering skill
+
+---
+
+## Lesson Progression
+
+- Build the data-engineering skill
+- Data quality principles and instruction formats
+- Synthetic data generation and validation
+- Task API dataset creation and versioning
+- Capstone: production-ready dataset; finalize the skill
+
+---
+
+## Outcome & Method
+
+You finish with a clean, versioned dataset for the Task API and a reusable data-engineering skill that feeds later fine-tuning chapters.
+
+---
+
+## Prerequisites
+
+- Chapters 61-62 (strategy and architecture)

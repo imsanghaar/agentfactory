@@ -1,0 +1,313 @@
+/**
+ * TeachMePanel Styles — Brand Blue Aesthetic
+ *
+ * Design: Matches Study Mode button with brand blue oklch(0.50 0.14 255)
+ * Clean, professional, integrated with existing UI
+ */
+
+/* ============================================================================
+   CHAT WRAPPER - Foundation
+   ============================================================================ */
+
+.chatWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============================================================================
+   ASK BUTTON — Matches Study Mode button exactly
+   ============================================================================ */
+
+.askButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  /* Same sizing as Study Mode button */
+  padding: 10px 16px;
+  min-width: 44px;
+  min-height: 44px;
+
+  /* Brand blue - exact Study Mode color */
+  background: oklch(0.50 0.14 255);
+  color: white;
+
+  /* Sharp corners - Study Mode standard */
+  border-radius: 0;
+
+  /* Typography */
+  font-family: system-ui, -apple-system, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  border: 1px solid oklch(0.55 0.14 255);
+
+  /* Same glow as Study Mode button */
+  box-shadow: 0 2px 8px oklch(0.50 0.14 255 / 0.3);
+
+  transition: all 0.15s ease;
+  animation: askButtonReveal 0.25s ease-out;
+
+  /* Position relative for icon */
+  position: relative;
+}
+
+/* Icon before text */
+.askButton::before {
+  content: "✦";
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.askButton:hover {
+  transform: translateX(-50%) translateY(-100%) translateY(-2px);
+  background: oklch(0.55 0.14 255);
+  border-color: oklch(0.60 0.14 255);
+  box-shadow: 0 4px 12px oklch(0.50 0.14 255 / 0.45);
+}
+
+.askButton:active {
+  transform: translateX(-50%) translateY(-100%);
+  background: oklch(0.45 0.14 255);
+}
+
+@keyframes askButtonReveal {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-75%) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-100%) scale(1);
+  }
+}
+
+/* Dark mode — slightly brighter */
+:global(html[data-theme='dark']) .askButton {
+  background: oklch(0.55 0.14 255);
+  border-color: oklch(0.60 0.14 255);
+  box-shadow: 0 2px 8px oklch(0.55 0.14 255 / 0.35);
+}
+
+:global(html[data-theme='dark']) .askButton:hover {
+  background: oklch(0.60 0.14 255);
+  border-color: oklch(0.65 0.14 255);
+  box-shadow: 0 4px 12px oklch(0.55 0.14 255 / 0.5);
+}
+
+/* Ask button locked state - show lock icon, same blue color */
+.askButtonLocked {
+  /* Same blue styling - icon shows locked state */
+}
+
+.askButtonLocked::before {
+  /* Hide the sparkle, lock icon is shown via JSX */
+  display: none;
+}
+
+/* ============================================================================
+   MOBILE CLOSE BUTTON — Hidden on desktop
+   ============================================================================ */
+
+.mobileCloseButton {
+  display: none;
+
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 50;
+
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+
+  border-radius: 4px;
+  background: oklch(0.98 0 0);
+  color: oklch(0.35 0 0);
+  border: 1px solid oklch(0.88 0 0);
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+@media (max-width: 768px) {
+  .mobileCloseButton {
+    display: flex;
+  }
+}
+
+.mobileCloseButton:hover {
+  background: oklch(0.95 0 0);
+  border-color: oklch(0.75 0 0);
+  color: oklch(0.18 0 0);
+}
+
+:global(html[data-theme='dark']) .mobileCloseButton {
+  background: oklch(0.15 0.01 250);
+  color: oklch(0.70 0 0);
+  border-color: oklch(0.28 0 0);
+}
+
+:global(html[data-theme='dark']) .mobileCloseButton:hover {
+  background: oklch(0.20 0.01 250);
+  border-color: oklch(0.40 0 0);
+  color: oklch(0.95 0 0);
+}
+
+/* ============================================================================
+   CHAT CONTAINER — Layout foundation
+   ============================================================================ */
+
+.chatContainer {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.chatKit {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Override ChatKit defaults */
+.chatContainer :global(openai-chatkit) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure prompts are interactive */
+.chatContainer :global([data-chatkit-prompt]),
+.chatContainer :global(button) {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* ============================================================================
+   CONTEXT CHIP — Positioned at bottom, above input
+   ============================================================================ */
+
+.contextChip {
+  flex-shrink: 0;
+  order: 1;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin: 0 12px 10px 12px;
+  padding: 10px 12px;
+
+  /* Brand blue left accent */
+  border-left: 3px solid oklch(0.50 0.14 255);
+  border-radius: 0 4px 4px 0;
+
+  background: oklch(0.97 0.01 255);
+}
+
+.contextLabel {
+  font-family: system-ui, -apple-system, 'SF Pro Text', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  color: oklch(0.50 0.14 255);
+  white-space: nowrap;
+}
+
+.contextText {
+  flex: 1;
+
+  font-family: system-ui, -apple-system, 'SF Pro Text', sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+  color: oklch(0.30 0 0);
+
+  /* Limit to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.contextDismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+
+  color: oklch(0.50 0 0);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.contextDismiss:hover {
+  background: oklch(0.92 0.01 255);
+  color: oklch(0.30 0 0);
+}
+
+/* Dark mode */
+:global(html[data-theme='dark']) .contextChip {
+  background: oklch(0.16 0.02 255);
+  border-left-color: oklch(0.60 0.14 255);
+}
+
+:global(html[data-theme='dark']) .contextLabel {
+  color: oklch(0.65 0.14 255);
+}
+
+:global(html[data-theme='dark']) .contextText {
+  color: oklch(0.82 0 0);
+}
+
+:global(html[data-theme='dark']) .contextDismiss {
+  color: oklch(0.55 0 0);
+}
+
+:global(html[data-theme='dark']) .contextDismiss:hover {
+  background: oklch(0.22 0.02 255);
+  color: oklch(0.90 0 0);
+}
+
+/* ============================================================================
+   CHAT TEXT SELECTION
+   ============================================================================ */
+
+/* Ensure all text in chat is selectable */
+.chatWrapper :global(*) {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* But disable selection on interactive elements for cleaner UX */
+.chatWrapper :global(button),
+.chatWrapper :global(input),
+.chatWrapper :global(textarea) {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}

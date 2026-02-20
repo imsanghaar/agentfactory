@@ -1,0 +1,20 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "sso",
+  "sourceRoot": "apps/sso/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:platform"],
+  "namedInputs": {
+    "noCI": []
+  },
+  "targets": {
+    "serve": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "sso:build",
+        "dev": true,
+        "port": 3001
+      }
+    }
+  }
+}

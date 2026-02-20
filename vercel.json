@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd apps/learn-app && pnpm install && pnpm run build",
+  "outputDirectory": "apps/learn-app/build",
+  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false
+}

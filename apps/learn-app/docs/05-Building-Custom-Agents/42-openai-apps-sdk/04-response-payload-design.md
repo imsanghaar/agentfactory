@@ -1,0 +1,335 @@
+---
+sidebar_position: 4
+title: "Displaying Tasks"
+description: "Build a task list widget and learn to separate model-visible data from widget-only data"
+keywords: ["structuredContent", "_meta", "task list", "widget data", "toolResponseMetadata"]
+chapter: 42
+lesson: 4
+duration_minutes: 40
+
+# HIDDEN SKILLS METADATA
+skills:
+  - name: "structuredContent for Model Narration"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "Software Development"
+    measurable_at_this_level: "Student can design concise data for effective model summaries"
+
+  - name: "_meta for Widget-Only Data"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "Software Development"
+    measurable_at_this_level: "Student can separate large data into _meta hidden from model"
+
+  - name: "Task List Widget Construction"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "Software Development"
+    measurable_at_this_level: "Student can build a dynamic list widget from server data"
+
+learning_objectives:
+  - objective: "Design structuredContent for effective model narration"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Model generates helpful summary based on structured data"
+
+  - objective: "Use _meta to pass large data to widget without model overhead"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Widget displays full task list while model sees only summary"
+
+  - objective: "Build a dynamic task list widget"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Widget renders list of tasks from server data"
+
+cognitive_load:
+  new_concepts: 3
+  assessment: "3 concepts (structuredContent purpose, _meta purpose, toolResponseMetadata) within B1 limit of 10 - PASS"
+
+differentiation:
+  extension_for_advanced: "Add task status indicators (icons, colors); implement empty state when no tasks"
+  remedial_for_struggling: "Start with all data in structuredContent; move to _meta after understanding the model's narration behavior"
+
+generated_by: content-implementer
+source_spec: specs/048-chapter-42-openai-apps-sdk
+created: 2025-12-28
+last_modified: 2025-12-28
+version: 2.0.0
+---
+
+# Displaying Tasks
+
+Time to transition from greeting to tasks. In this lesson, you'll build a widget that displays a list of tasks—the core of TaskManager. Along the way, you'll learn a critical pattern: separating what the model sees from what the widget sees.
+
+Why does this matter? Imagine your task list has 100 items. If you put all 100 in `structuredContent`, the model might try to summarize every single one, producing a verbose response. By using `_meta`, you give the widget the full list while the model only sees "You have 100 tasks."
+
+## The Two Data Channels
+
+Your tool response has two ways to send data:
+
+| Field | Who Sees It | Best For |
+|-------|-------------|----------|
+| `structuredContent` | Model + Widget | Summary counts, status info |
+| `_meta` (via `toolResponseMetadata`) | Widget only | Full data lists, sensitive info |
+
+Both are accessible in the widget, but only `structuredContent` influences the model's response.
+
+## Updating to a Task List
+
+Replace your greeting server with a task list server. Update `main.py`:
+
+```python
+import mcp.types as types
+from mcp.server.fastmcp import FastMCP
+from datetime import datetime
+
+MIME_TYPE = "text/html+skybridge"
+
+# In-memory task storage (we'll persist later)
+TASKS = [
+    {"id": 1, "title": "Buy groceries", "done": False},
+    {"id": 2, "title": "Review pull request", "done": False},
+    {"id": 3, "title": "Call mom", "done": True},
+]
+
+WIDGET_HTML = '''<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 16px;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    h2 { margin: 0 0 16px 0; color: #333; }
+    .stats { color: #666; font-size: 14px; margin-bottom: 16px; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    li:last-child { border-bottom: none; }
+    .done { text-decoration: line-through; color: #999; }
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .checkbox.checked {
+      background: #667eea;
+      color: white;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>TaskManager</h2>
+    <p class="stats" id="stats">Loading...</p>
+    <ul id="task-list"></ul>
+    <button onclick="refresh()">Refresh</button>
+  </div>
+  <script>
+    // Model sees: summary stats (structuredContent)
+    const summary = window.openai?.toolOutput;
+    // Widget sees: full task list (_meta)
+    const meta = window.openai?.toolResponseMetadata;
+    const tasks = meta?.tasks || [];
+
+    // Update stats from summary
+    if (summary) {
+      document.getElementById('stats').textContent =
+        summary.total + ' tasks (' + summary.pending + ' pending, ' + summary.completed + ' done)';
+    }
+
+    // Render full task list from _meta
+    const list = document.getElementById('task-list');
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="checkbox ${task.done ? 'checked' : ''}">${task.done ? '✓' : ''}</div>
+        <span class="${task.done ? 'done' : ''}">${task.title}</span>
+      `;
+      list.appendChild(li);
+    });
+
+    function refresh() {
+      window.openai?.sendFollowUpMessage?.({ prompt: "Show my tasks" });
+    }
+  </script>
+</body>
+</html>'''
+
+mcp = FastMCP("TaskManager")
+
+@mcp.tool()
+def show_tasks() -> types.CallToolResult:
+    """Display the task list widget."""
+    pending = len([t for t in TASKS if not t["done"]])
+    completed = len([t for t in TASKS if t["done"]])
+
+    return types.CallToolResult(
+        content=[types.TextContent(
+            type="text",
+            text=f"Showing {len(TASKS)} tasks ({pending} pending)"
+        )],
+        # Model sees: just the summary
+        structuredContent={
+            "total": len(TASKS),
+            "pending": pending,
+            "completed": completed,
+        },
+        _meta={
+            # Widget sees: full task list
+            "tasks": TASKS,
+            # Plus the embedded widget
+            "openai.com/widget": types.EmbeddedResource(
+                type="resource",
+                resource=types.TextResourceContents(
+                    uri="ui://tasks",
+                    mimeType=MIME_TYPE,
+                    text=WIDGET_HTML,
+                )
+            )
+        }
+    )
+
+if __name__ == "__main__":
+    import uvicorn
+    app = mcp.sse_app()
+    uvicorn.run(app, host="0.0.0.0", port=8001)
+```
+
+## Understanding the Data Split
+
+**What the model sees (`structuredContent`):**
+```json
+{
+  "total": 3,
+  "pending": 2,
+  "completed": 1
+}
+```
+
+The model can narrate: "You have 3 tasks. 2 are pending and 1 is completed."
+
+**What the widget sees (`_meta`):**
+```json
+{
+  "tasks": [
+    {"id": 1, "title": "Buy groceries", "done": false},
+    {"id": 2, "title": "Review pull request", "done": false},
+    {"id": 3, "title": "Call mom", "done": true}
+  ]
+}
+```
+
+The widget renders the full list with titles and checkboxes.
+
+### Accessing Both in the Widget
+
+```javascript
+// Summary from structuredContent
+const summary = window.openai?.toolOutput;
+
+// Full data from _meta
+const meta = window.openai?.toolResponseMetadata;
+const tasks = meta?.tasks || [];
+```
+
+Two different API properties:
+- `toolOutput` → `structuredContent`
+- `toolResponseMetadata` → `_meta`
+
+## Why This Pattern Matters
+
+With 3 tasks, the difference is subtle. But imagine 100 tasks:
+
+**Without separation (all in structuredContent):**
+
+The model might respond:
+> "Here are your tasks: 1. Buy groceries (pending), 2. Review pull request (pending), 3. Call mom (done), 4. Schedule dentist (pending), 5. Fix bug #123 (pending)..." [continues for 100 items]
+
+This wastes tokens and annoys users.
+
+**With separation:**
+
+The model responds:
+> "You have 100 tasks. 73 are pending and 27 are completed."
+
+The widget shows the full interactive list. Best of both worlds.
+
+## Testing Your Task List
+
+1. Restart your server
+2. In ChatGPT: "Show my tasks"
+3. You should see:
+   - The widget with 3 tasks (checkboxes and titles)
+   - Model narrating the summary: "3 tasks, 2 pending"
+4. Click "Refresh" to reload
+
+## What You Built
+
+Building on previous lessons:
+- Switched from greeting to task list
+- Used `structuredContent` for model summary
+- Used `_meta` for full widget data
+- Rendered dynamic list from server data
+
+Your TaskManager now displays tasks. In the next lesson, you'll add Complete and Delete buttons using `callTool`.
+
+## Try With AI
+
+### Prompt 1: Add Empty State
+
+```
+When there are no tasks, the widget should show "No tasks yet! Add one to get started."
+Update the JavaScript to handle the empty tasks array case.
+```
+
+**What you're learning:** Defensive UI programming. Real apps need to handle edge cases gracefully.
+
+### Prompt 2: Style Pending vs Done
+
+```
+Make pending tasks have a purple left border.
+Make completed tasks have a green left border and lighter background.
+Keep the checkbox styling as is.
+```
+
+**What you're learning:** Visual hierarchy in task management UIs. Users should instantly see what needs attention.
+
+### Prompt 3: Add Task Count to Title
+
+```
+Change the widget title from "TaskManager" to "TaskManager (3 tasks)" where the number updates based on the actual task count. Use the summary data from structuredContent.
+```
+
+**What you're learning:** Combining summary data with UI elements. The header becomes dynamic while keeping the full list in _meta.

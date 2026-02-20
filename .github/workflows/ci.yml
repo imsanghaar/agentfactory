@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  main:
+    name: Nx Affected
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for nx affected
+          filter: blob:none # Exclude blob downloads for faster clone
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Python dependencies
+        run: uv sync --all-extras
+
+      # Use nrwl/nx-set-shas to automatically determine base/head for affected
+      - name: Derive appropriate SHAs for base and head
+        uses: nrwl/nx-set-shas@v4
+
+      # Fast checks only: lint + typecheck
+      # Heavy operations (test, build) belong in dedicated per-project CI workflows:
+      #   - practice-server: practice-server-ci.yml (needs node-pty native compilation)
+      #   - learn-app: pr-check.yml (Docusaurus build is 10-30 min)
+      #   - Python APIs: need database + Docker (not available here)
+      - name: Run affected lint
+        run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server
+        timeout-minutes: 10
+
+      - name: Run affected typecheck
+        run: npx nx affected -t typecheck --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server
+        timeout-minutes: 10
+
+      - name: Build summary
+        if: always()
+        run: |
+          echo "## Nx Affected CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Base SHA:** $NX_BASE" >> $GITHUB_STEP_SUMMARY
+          echo "**Head SHA:** $NX_HEAD" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Affected Projects:" >> $GITHUB_STEP_SUMMARY
+          npx nx show projects --affected --base=$NX_BASE --head=$NX_HEAD >> $GITHUB_STEP_SUMMARY || echo "No projects affected" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,645 @@
+---
+sidebar_position: 4
+title: "Secrets Management"
+description: "Create and consume Kubernetes Secrets securely using volume mounts, understanding the secrets hierarchy from K8s Secrets to External Secrets Operator"
+keywords: [kubernetes secrets, volume mount, secret management, external secrets operator, sealed secrets, base64, credential exposure, security]
+chapter: 58
+lesson: 4
+duration_minutes: 25
+
+skills:
+  - name: "K8s Secret Creation"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "4. Safety"
+    measurable_at_this_level: "Student creates Secrets from literals and files, and consumes them via volume mounts"
+  - name: "Secret Consumption Pattern Selection"
+    proficiency_level: "B1"
+    category: "Applied"
+    bloom_level: "Analyze"
+    digcomp_area: "4. Safety"
+    measurable_at_this_level: "Student analyzes trade-offs between volume mounts and environment variables and chooses appropriately"
+  - name: "Secrets Hierarchy Understanding"
+    proficiency_level: "B1"
+    category: "Conceptual"
+    bloom_level: "Understand"
+    digcomp_area: "4. Safety"
+    measurable_at_this_level: "Student explains when to use K8s Secrets vs Sealed Secrets vs External Secrets Operator"
+  - name: "Base64 Encoding Awareness"
+    proficiency_level: "A2"
+    category: "Technical"
+    bloom_level: "Understand"
+    digcomp_area: "4. Safety"
+    measurable_at_this_level: "Student understands that base64 is encoding, not encryption, and identifies security implications"
+
+learning_objectives:
+  - objective: "Create Kubernetes Secrets from literals and files using kubectl"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Student creates Secret and verifies with kubectl get secret -o yaml"
+  - objective: "Consume Secrets via volume mounts instead of environment variables"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Pod spec correctly mounts Secret as volume with proper permissions"
+  - objective: "Explain why volume mounts are more secure than environment variables for secrets"
+    proficiency_level: "B1"
+    bloom_level: "Understand"
+    assessment_method: "Student correctly identifies three security advantages of volume mounts"
+  - objective: "Describe the secrets management hierarchy and when each level applies"
+    proficiency_level: "B1"
+    bloom_level: "Understand"
+    assessment_method: "Student correctly matches scenarios to appropriate secrets management approach"
+
+cognitive_load:
+  new_concepts: 6
+  assessment: "Six concepts: Secret creation methods, volume mount consumption, environment variable risks, base64 vs encryption, Sealed Secrets overview, External Secrets Operator overview. Progressive introduction within B1 limits."
+
+differentiation:
+  extension_for_advanced: "Implement External Secrets Operator with local Vault instance or explore HashiCorp Vault integration"
+  remedial_for_struggling: "Focus on literal Secret creation and volume mount pattern before exploring hierarchy"
+---
+
+# Secrets Management
+
+In January 2023, CircleCI disclosed a security incident affecting thousands of customer projects. Attackers had accessed stored secrets—API keys, OAuth tokens, SSH keys—because they were stored as environment variables visible in build logs and process listings. The incident affected companies from startups to enterprises, requiring emergency credential rotation across their entire infrastructure.
+
+Your Task API needs database credentials, API keys, and service tokens. How you store and consume these secrets determines whether a container escape becomes a minor incident or a catastrophic breach. Environment variables—the most common approach—are also the most dangerous because they appear in process listings, crash dumps, and debugging output.
+
+This lesson teaches you the secure pattern: **volume mounts for secret consumption**. You'll also understand where Kubernetes Secrets fit in the broader secrets hierarchy, from development conveniences to production-grade external secret managers.
+
+---
+
+## The Problem with Environment Variables
+
+Before learning the secure pattern, understand why the common pattern fails.
+
+### Why Teams Use Environment Variables
+
+Environment variables are convenient:
+
+```yaml
+# DANGEROUS - commonly used but insecure
+containers:
+- name: task-api
+  env:
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-credentials
+        key: password
+```
+
+The secret value becomes accessible via `$DATABASE_PASSWORD` in your application. Simple, readable, supported by every framework. But fundamentally insecure.
+
+### Environment Variable Attack Surface
+
+| Exposure Vector | How Secrets Leak |
+|-----------------|------------------|
+| **Process listing** | `ps auxe` shows environment variables to any user on the node |
+| **Container inspection** | `docker inspect` exposes all env vars in plaintext |
+| **Crash dumps** | Core dumps include environment in memory snapshot |
+| **Logging** | Libraries often log startup configuration including env vars |
+| **Child processes** | Spawned processes inherit parent's environment |
+| **Kubernetes API** | Pod spec in etcd contains env var values |
+
+A single debugging command can expose your production database password:
+
+```bash
+# Anyone with node access can see container environment
+docker inspect task-api-container | grep -A 50 "Env"
+```
+
+**Output:**
+
+```json
+"Env": [
+    "DATABASE_PASSWORD=SuperSecretPassword123",
+    "API_KEY=sk-prod-abc123xyz..."
+]
+```
+
+---
+
+## Volume Mounts: The Secure Alternative
+
+Volume mounts project secrets as files inside the container. This approach eliminates most environment variable attack vectors.
+
+### How Volume Mounts Work
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Volume Mount Pattern                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  K8s Secret ──► Volume ──► File in Container                │
+│                                                              │
+│  db-credentials         /etc/secrets/                       │
+│  ├── username    ──►    ├── username (file containing value)│
+│  └── password    ──►    └── password (file containing value)│
+│                                                              │
+│  App reads: open("/etc/secrets/password").read()            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Your application reads credentials from files instead of environment variables. This simple change eliminates five of the six exposure vectors above.
+
+### Security Comparison
+
+| Concern | Environment Variables | Volume Mounts |
+|---------|----------------------|---------------|
+| Process listing (`ps`) | Exposed | Not visible |
+| Container inspection | Exposed | Not visible |
+| Child process inheritance | Inherited | Not inherited |
+| Crash dumps | Included | Not included |
+| Logging frameworks | Often logged | Rarely logged |
+| Kubernetes etcd | Stored in pod spec | Stored in Secret only |
+| File permissions | N/A | Configurable (0400) |
+
+Volume mounts keep secrets out of the execution environment entirely. They exist only as files with restricted permissions.
+
+---
+
+## Creating Kubernetes Secrets
+
+Kubernetes Secrets store sensitive data as key-value pairs. Values are base64-encoded (NOT encrypted) in etcd.
+
+### Method 1: Create from Literals
+
+For individual values, use `--from-literal`:
+
+```bash
+kubectl create secret generic db-credentials \
+  -n task-api \
+  --from-literal=username=task_api_user \
+  --from-literal=password='SuperSecretPassword123!'
+```
+
+**Output:**
+
+```
+secret/db-credentials created
+```
+
+Verify the Secret exists:
+
+```bash
+kubectl get secret db-credentials -n task-api -o yaml
+```
+
+**Output:**
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: task-api
+type: Opaque
+data:
+  password: U3VwZXJTZWNyZXRQYXNzd29yZDEyMyE=
+  username: dGFza19hcGlfdXNlcg==
+```
+
+The values are base64-encoded. Decode to verify:
+
+```bash
+echo "U3VwZXJTZWNyZXRQYXNzd29yZDEyMyE=" | base64 -d
+```
+
+**Output:**
+
+```
+SuperSecretPassword123!
+```
+
+:::warning Base64 is NOT Encryption
+Base64 encoding is reversible by anyone. It provides zero security—only encoding convenience. Anyone with `kubectl get secret` access can decode your credentials instantly. Kubernetes stores Secrets in etcd, which should have encryption-at-rest enabled in production.
+:::
+
+### Method 2: Create from Files
+
+For certificates, keys, or complex credentials, use `--from-file`:
+
+```bash
+# Create files with credentials
+echo -n "task_api_user" > username.txt
+echo -n "SuperSecretPassword123!" > password.txt
+
+# Create Secret from files
+kubectl create secret generic db-credentials-file \
+  -n task-api \
+  --from-file=username=username.txt \
+  --from-file=password=password.txt
+
+# Clean up plaintext files immediately
+rm username.txt password.txt
+```
+
+**Output:**
+
+```
+secret/db-credentials-file created
+```
+
+The `--from-file` approach is essential for multi-line values like TLS certificates:
+
+```bash
+kubectl create secret tls task-api-tls \
+  -n task-api \
+  --cert=server.crt \
+  --key=server.key
+```
+
+**Output:**
+
+```
+secret/task-api-tls created
+```
+
+---
+
+## Consuming Secrets via Volume Mount
+
+Mount your Secret as a volume in the pod spec:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-api
+  namespace: task-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: task-api
+  template:
+    metadata:
+      labels:
+        app: task-api
+    spec:
+      serviceAccountName: task-api-sa
+      containers:
+      - name: task-api
+        image: ghcr.io/your-org/task-api:v1.0.0
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: db-credentials
+          mountPath: /etc/secrets/db
+          readOnly: true
+      volumes:
+      - name: db-credentials
+        secret:
+          secretName: db-credentials
+          defaultMode: 0400  # Read-only for owner
+```
+
+**Key elements:**
+
+| Element | Purpose |
+|---------|---------|
+| `volumeMounts.mountPath` | Directory where secrets appear as files |
+| `volumeMounts.readOnly: true` | Prevent accidental writes |
+| `volumes.secret.secretName` | Reference to your Secret |
+| `defaultMode: 0400` | File permissions (owner read-only) |
+
+Apply the deployment:
+
+```bash
+kubectl apply -f task-api-deployment.yaml
+```
+
+**Output:**
+
+```
+deployment.apps/task-api created
+```
+
+### Verify Volume Mount
+
+Check that secrets are mounted correctly:
+
+```bash
+kubectl exec -n task-api deploy/task-api -- ls -la /etc/secrets/db/
+```
+
+**Output:**
+
+```
+total 0
+drwxrwxrwt 3 root root 120 Jan 15 10:30 .
+drwxr-xr-x 3 root root  60 Jan 15 10:30 ..
+lrwxrwxrwx 1 root root  15 Jan 15 10:30 password -> ..data/password
+lrwxrwxrwx 1 root root  15 Jan 15 10:30 username -> ..data/username
+```
+
+Read the secret value:
+
+```bash
+kubectl exec -n task-api deploy/task-api -- cat /etc/secrets/db/password
+```
+
+**Output:**
+
+```
+SuperSecretPassword123!
+```
+
+### Application Code Pattern
+
+Your application reads credentials from files:
+
+```python
+# Python example
+def get_db_password():
+    with open('/etc/secrets/db/password', 'r') as f:
+        return f.read().strip()
+
+# Use in connection string
+db_url = f"postgresql://{get_db_username()}:{get_db_password()}@postgres:5432/tasks"
+```
+
+```typescript
+// TypeScript example
+import { readFileSync } from 'fs';
+
+function getDbPassword(): string {
+  return readFileSync('/etc/secrets/db/password', 'utf-8').trim();
+}
+```
+
+---
+
+## Mounting Specific Keys
+
+You can mount individual keys to specific file paths:
+
+```yaml
+volumes:
+- name: db-credentials
+  secret:
+    secretName: db-credentials
+    items:
+    - key: password
+      path: db-password  # Creates /etc/secrets/db/db-password
+    - key: username
+      path: db-username  # Creates /etc/secrets/db/db-username
+```
+
+This is useful when your application expects specific filenames.
+
+---
+
+## The Secrets Management Hierarchy
+
+Kubernetes Secrets are the foundation, but production environments need more:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Secrets Management Hierarchy                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Level 3: External Secrets Operator (Production)            │
+│  ├── Syncs from: Vault, AWS Secrets Manager, Azure KV       │
+│  ├── Features: Rotation, audit, centralized management      │
+│  └── Best for: Multi-cluster, enterprise compliance         │
+│                           │                                  │
+│  Level 2: Sealed Secrets (GitOps)                           │
+│  ├── Encrypted secrets safe for git repositories            │
+│  ├── Features: GitOps-compatible, cluster-specific keys     │
+│  └── Best for: GitOps workflows, single-cluster             │
+│                           │                                  │
+│  Level 1: K8s Secrets (Development)                         │
+│  ├── Base64-encoded in etcd                                 │
+│  ├── Features: Simple, native, no external dependencies     │
+│  └── Best for: Development, quick prototypes                │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### When to Use Each Level
+
+| Scenario | Recommended Level | Why |
+|----------|-------------------|-----|
+| Local development | K8s Secrets | Simple, no setup required |
+| Single-cluster GitOps | Sealed Secrets | Encrypted secrets in git |
+| Multi-cluster production | External Secrets Operator | Centralized management |
+| Compliance requirements (SOC2, HIPAA) | External Secrets Operator | Audit trails, rotation |
+| Secret rotation needed | External Secrets Operator | Automatic sync |
+
+### Sealed Secrets Overview
+
+Sealed Secrets (Bitnami) encrypts secrets with a cluster-specific key. The encrypted `SealedSecret` resource is safe to commit to git:
+
+```yaml
+# This is SAFE to commit to git
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: db-credentials
+  namespace: task-api
+spec:
+  encryptedData:
+    password: AgBy8hCi...long-encrypted-string...
+    username: AgCtr4Kx...long-encrypted-string...
+```
+
+Only the controller running in your cluster can decrypt it. Different clusters have different keys, so secrets stay cluster-specific.
+
+### External Secrets Operator Overview
+
+External Secrets Operator (ESO) syncs secrets from external stores into Kubernetes:
+
+```yaml
+# ExternalSecret definition
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: db-credentials
+  namespace: task-api
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: SecretStore
+  target:
+    name: db-credentials
+  data:
+  - secretKey: password
+    remoteRef:
+      key: secret/data/task-api/db
+      property: password
+```
+
+ESO creates a standard Kubernetes Secret that your pods consume via volume mount—the same pattern you learned above. The difference is where the source of truth lives (external vault) and that ESO handles rotation automatically.
+
+---
+
+## Task API Secret Configuration
+
+Here's the complete Secret and volume mount configuration for Task API. Create `task-api-secrets.yaml`:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: task-api-secrets
+  namespace: task-api
+type: Opaque
+stringData:  # stringData auto-encodes to base64
+  db-password: "YourSecurePassword123!"
+  api-key: "sk-prod-your-api-key-here"
+  jwt-secret: "your-jwt-signing-secret"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-api
+  namespace: task-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: task-api
+  template:
+    metadata:
+      labels:
+        app: task-api
+    spec:
+      serviceAccountName: task-api-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: task-api
+        image: ghcr.io/your-org/task-api:v1.0.0
+        ports:
+        - containerPort: 8000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: secrets
+        secret:
+          secretName: task-api-secrets
+          defaultMode: 0400
+      - name: tmp
+        emptyDir: {}
+```
+
+Apply the configuration:
+
+```bash
+kubectl apply -f task-api-secrets.yaml
+```
+
+**Output:**
+
+```
+secret/task-api-secrets created
+deployment.apps/task-api created
+```
+
+---
+
+## Reflect on Your Skill
+
+Test your `cloud-security` skill against secrets management:
+
+```
+Using my cloud-security skill, generate a Secret and Deployment
+configuration for an application that needs:
+- Database credentials (username and password)
+- An external API key
+- A TLS certificate and key
+
+Use volume mounts, not environment variables.
+```
+
+**Evaluation questions:**
+
+1. Does your skill default to volume mounts instead of environment variables?
+2. Does your skill set `defaultMode: 0400` for restrictive file permissions?
+3. Does your skill include the `readOnly: true` flag on volumeMounts?
+4. Does your skill warn about base64 encoding vs encryption?
+5. Does your skill mention when to escalate to Sealed Secrets or ESO?
+
+If any answers are "no," update your skill with the patterns from this lesson.
+
+---
+
+## Try With AI
+
+Practice secrets management patterns and troubleshooting.
+
+**Prompt 1:**
+
+```
+My application can't read secrets from /etc/secrets/db/password.
+The file doesn't exist. Here's my pod spec:
+
+volumeMounts:
+- name: credentials
+  mountPath: /etc/secrets/db
+volumes:
+- name: credentials
+  secret:
+    secretName: database-creds
+
+The Secret database-creds exists. What's wrong?
+```
+
+**What you're learning:** Common volume mount debugging. The issue could be namespace mismatch (Secret in different namespace than pod), Secret key names don't match expected paths, or the Secret was created after the pod started. The skill should walk through verification steps: checking Secret exists in same namespace, verifying key names, and restarting the pod if Secret was created late.
+
+**Prompt 2:**
+
+```
+Convert this environment variable configuration to use volume mounts:
+
+containers:
+- name: app
+  env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-creds
+        key: password
+  - name: API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: api-creds
+        key: key
+```
+
+**What you're learning:** Migration pattern from environment variables to volume mounts. Notice how the conversion requires both volumeMount entries and volume definitions. The application code also needs updating to read from files instead of environment variables.
+
+**Prompt 3:**
+
+```
+Our security team requires that all secrets:
+1. Rotate every 90 days automatically
+2. Have audit trails for access
+3. Work across 5 Kubernetes clusters
+
+Should we use K8s Secrets, Sealed Secrets, or External Secrets Operator?
+Explain your recommendation.
+```
+
+**What you're learning:** How to select the appropriate level in the secrets hierarchy based on requirements. Rotation and audit requirements point to External Secrets Operator with a backend like HashiCorp Vault. Multi-cluster also favors centralized management. The skill should explain why K8s Secrets and Sealed Secrets don't meet these requirements.
+
+:::warning Security Reminder
+Never commit plaintext secrets to git, even temporarily. Use `kubectl create secret` imperatively or Sealed Secrets for GitOps workflows. Base64 encoding provides zero security—anyone with cluster access can decode your secrets instantly.
+:::

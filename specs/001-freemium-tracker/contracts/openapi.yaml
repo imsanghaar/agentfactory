@@ -1,0 +1,751 @@
+openapi: 3.1.0
+info:
+  title: Token Metering API (v5)
+  description: |
+    Freemium token tracking and metering service for the Agent Factory platform.
+
+    **v5 Features**:
+    - 50,000 starter tokens for new users
+    - Single balance field (O(1) reads)
+    - Inactivity expiry (365 days)
+    - Sorted set reservations with lazy cleanup
+  version: 5.0.0
+  contact:
+    name: Agent Factory Team
+
+servers:
+  - url: http://localhost:8001
+    description: Local development
+  - url: https://metering.agentfactory.dev
+    description: Development environment
+  - url: https://metering.agentfactory.com
+    description: Production environment
+
+tags:
+  - name: Metering
+    description: Core metering operations (check, deduct, release)
+  - name: Balance
+    description: Balance queries
+  - name: Admin
+    description: Administrative operations (grant, topup)
+  - name: Health
+    description: Service health checks
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      tags: [Health]
+      summary: Prometheus metrics
+      description: Returns Prometheus-formatted metrics for monitoring.
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/metering/check:
+    post:
+      tags: [Metering]
+      summary: Pre-request balance check with reservation
+      description: |
+        Check if user has sufficient balance for an estimated request.
+        Creates an atomic reservation for estimated tokens.
+        Must complete in under 5ms for 99% of requests.
+      operationId: checkBalance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckRequest'
+      responses:
+        '200':
+          description: Balance check passed - proceed with request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckResponse'
+        '402':
+          description: Insufficient balance - request blocked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockedResponse'
+        '403':
+          description: Account suspended or model not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockedResponse'
+        '409':
+          description: Request ID conflict (reused with different params)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/metering/deduct:
+    post:
+      tags: [Metering]
+      summary: Post-request token deduction (finalize reservation)
+      description: |
+        Deduct tokens after successful LLM response.
+        Converts reservation to actual usage, updates balance, creates audit transaction.
+        Idempotent via request_id.
+      operationId: deductTokens
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeductRequest'
+      responses:
+        '200':
+          description: Tokens deducted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeductResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User mismatch or model not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Reservation not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/metering/release:
+    post:
+      tags: [Metering]
+      summary: Cancel reservation on LLM failure
+      description: |
+        Deletes the reservation without updating balance.
+        No audit transaction created.
+        Idempotent via reservation_id.
+      operationId: releaseReservation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseRequest'
+      responses:
+        '200':
+          description: Reservation released successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Reservation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/balance:
+    get:
+      tags: [Balance]
+      summary: Get current balance
+      description: |
+        Returns user's current balance, effective balance, and status.
+        O(1) read from TokenAccount.balance field.
+      operationId: getBalance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/balance/{user_id}:
+    get:
+      tags: [Admin]
+      summary: Get specific user's balance (admin only)
+      description: |
+        Returns specific user's balance. Requires admin role.
+      operationId: getBalanceByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID to query
+      responses:
+        '200':
+          description: User's balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admin/grant:
+    post:
+      tags: [Admin]
+      summary: Grant tokens to user
+      description: |
+        Grant tokens to a user (e.g., Panaversity students, promotions).
+        Creates audit record in TokenAllocation.
+      operationId: grantTokens
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrantRequest'
+      responses:
+        '200':
+          description: Tokens granted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrantResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/v1/admin/topup:
+    post:
+      tags: [Admin]
+      summary: Add topped-up tokens (paid)
+      description: |
+        Add paid/purchased tokens to a user's balance.
+        For future Stripe integration.
+      operationId: topupTokens
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopupRequest'
+      responses:
+        '200':
+          description: Tokens added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopupResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/v1/transactions:
+    get:
+      tags: [Balance]
+      summary: Get transaction history
+      description: |
+        Returns paginated transaction history for the authenticated user.
+        Can filter by thread_id for conversation-specific history.
+      operationId: getTransactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: thread_id
+          in: query
+          description: Filter by thread ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/allocations:
+    get:
+      tags: [Balance]
+      summary: Get allocation history
+      description: |
+        Returns audit records of all token allocations (starter, grant, topup).
+      operationId: getAllocations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Allocation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllocationsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT from SSO service
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions (admin required)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # Request Schemas
+    CheckRequest:
+      type: object
+      required:
+        - user_id
+        - request_id
+        - estimated_tokens
+        - model
+      properties:
+        user_id:
+          type: string
+          description: User ID (must match JWT subject)
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          description: Unique request ID for idempotency (standard UUID format, no colons)
+        estimated_tokens:
+          type: integer
+          minimum: 1
+          description: Estimated total tokens for the request
+        model:
+          type: string
+          description: Model identifier (for pricing and audit)
+          example: "deepseek-chat"
+        context:
+          type: object
+          description: Additional context (lesson_path, etc.)
+
+    DeductRequest:
+      type: object
+      required:
+        - user_id
+        - request_id
+        - reservation_id
+        - input_tokens
+        - output_tokens
+        - model
+      properties:
+        user_id:
+          type: string
+          description: User ID (must match JWT subject)
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          description: Request ID from check (idempotency key)
+        reservation_id:
+          type: string
+          pattern: ^(res_|failopen_)[a-f0-9]+$
+          description: Reservation ID from check response (res_ or failopen_ prefix)
+        input_tokens:
+          type: integer
+          minimum: 0
+          description: Actual input tokens from LLM response
+        output_tokens:
+          type: integer
+          minimum: 0
+          description: Actual output tokens from LLM response
+        model:
+          type: string
+          description: Model used for the request
+        thread_id:
+          type: string
+          description: Thread/conversation ID
+        usage_details:
+          type: object
+          description: Additional usage metadata
+
+    ReleaseRequest:
+      type: object
+      required:
+        - user_id
+        - request_id
+        - reservation_id
+      properties:
+        user_id:
+          type: string
+          description: User ID (must match JWT subject)
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+          description: Request ID from check
+        reservation_id:
+          type: string
+          pattern: ^(res_|failopen_)[a-f0-9]+$
+          description: Reservation ID to release (res_ or failopen_ prefix)
+
+    GrantRequest:
+      type: object
+      required:
+        - user_id
+        - tokens
+      properties:
+        user_id:
+          type: string
+          description: User to grant tokens to
+        tokens:
+          type: integer
+          minimum: 1
+          description: Number of tokens to grant
+        reason:
+          type: string
+          description: Reason for grant (audit trail)
+
+    TopupRequest:
+      type: object
+      required:
+        - user_id
+        - tokens
+      properties:
+        user_id:
+          type: string
+          description: User to add tokens to
+        tokens:
+          type: integer
+          minimum: 1
+          description: Number of tokens to add
+        payment_reference:
+          type: string
+          description: Payment reference (Stripe) for audit
+
+    # Response Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        services:
+          type: object
+          properties:
+            redis:
+              type: string
+              enum: [connected, disconnected]
+            database:
+              type: string
+              enum: [connected, disconnected]
+
+    CheckResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+          example: true
+        reservation_id:
+          type: string
+          description: Reservation ID (use in deduct/release)
+        reserved_tokens:
+          type: integer
+          description: Tokens reserved
+        expires_at:
+          type: string
+          format: date-time
+          description: When reservation expires
+
+    BlockedResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+          example: false
+        error_code:
+          type: string
+          enum: [INSUFFICIENT_BALANCE, ACCOUNT_SUSPENDED, REQUEST_ID_CONFLICT]
+        message:
+          type: string
+          description: User-facing message
+        balance:
+          type: integer
+          description: Current balance (raw)
+        available_balance:
+          type: integer
+          description: effective_balance - reserved_total
+        required:
+          type: integer
+          description: Tokens requested
+        is_expired:
+          type: boolean
+          description: True if account inactive 365+ days
+
+    DeductResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [finalized, already_processed]
+        transaction_id:
+          type: integer
+          description: ID of the created transaction
+        total_tokens:
+          type: integer
+          description: Total tokens deducted
+        credits_deducted:
+          type: integer
+          description: Tokens removed from balance
+        balance_after:
+          type: integer
+          description: Balance after deduction
+        balance_source:
+          type: string
+          enum: [balance]
+        pricing_version:
+          type: string
+          description: Pricing version used
+        thread_id:
+          type: string
+          description: Thread ID if provided
+
+    ReleaseResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [released]
+        reserved_tokens:
+          type: integer
+          description: Tokens that were released
+
+    BalanceResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        status:
+          type: string
+          enum: [active, suspended]
+        balance:
+          type: integer
+          description: Raw balance (may include expired)
+        effective_balance:
+          type: integer
+          description: 0 if expired, else balance
+        last_activity_at:
+          type: string
+          format: date-time
+        is_expired:
+          type: boolean
+          description: True if inactive 365+ days
+
+    GrantResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        transaction_id:
+          type: integer
+        allocation_id:
+          type: integer
+        tokens_granted:
+          type: integer
+        new_balance:
+          type: integer
+
+    TopupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        transaction_id:
+          type: integer
+        allocation_id:
+          type: integer
+        tokens_added:
+          type: integer
+        new_balance:
+          type: integer
+
+    TransactionsResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        transaction_type:
+          type: string
+          enum: [usage, grant, topup, starter]
+        total_tokens:
+          type: integer
+        input_tokens:
+          type: integer
+          nullable: true
+        output_tokens:
+          type: integer
+          nullable: true
+        credits_deducted:
+          type: integer
+          nullable: true
+        base_cost_usd:
+          type: number
+          format: float
+          nullable: true
+          description: Base cost before markup
+        total_cost_usd:
+          type: number
+          format: float
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        thread_id:
+          type: string
+          nullable: true
+        request_id:
+          type: string
+          nullable: true
+          description: Idempotency key from check/deduct
+        pricing_version:
+          type: string
+          nullable: true
+          description: Pricing table version used
+        created_at:
+          type: string
+          format: date-time
+
+    AllocationsResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Allocation'
+
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: integer
+        allocation_type:
+          type: string
+          enum: [starter, grant, topup]
+        amount:
+          type: integer
+        reason:
+          type: string
+          nullable: true
+          description: Reason for grant (audit trail)
+        admin_id:
+          type: string
+          nullable: true
+          description: Admin who created the allocation
+        payment_reference:
+          type: string
+          nullable: true
+          description: Payment reference for topup (e.g., Stripe payment intent)
+        created_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        error_code:
+          type: string
+        message:
+          type: string
+        status_code:
+          type: integer

@@ -1,0 +1,48 @@
+# Agent Factory
+
+> The Spec-Driven Blueprint for Building and Monetizing Digital FTEs
+
+## About
+
+Agent Factory teaches domain experts how to build sellable AI agents using Claude Code, MCP, and agent SDKs. Transform expertise into AI employees that work 24/7.
+
+## Key Topics
+
+- **Digital FTE**: AI employees performing real work autonomously under human supervision
+- **General Agents**: Claude Code, Gemini CLI, Codex CLI for AI-driven development
+- **Custom Agents**: OpenAI Agents SDK, Claude Agent SDK, Google ADK
+- **MCP**: Model Context Protocol for universal tool connectivity
+- **Agent Skills**: Reusable intelligence packaging in SKILL.md format
+- **Spec-Driven Development**: AI-native software methodology with specs as source of truth
+
+## Documentation Structure
+
+- /docs/01-General-Agents-Foundations/ - Core concepts, Claude Code mastery
+- /docs/02-Applied-General-Agent-Workflows/ - Practical workflows and digital FTE creation
+- /docs/03-SDD-RI-Fundamentals/ - Spec-driven development methodology
+- /docs/04-Coding-for-Problem-Solving/ - Python fundamentals for AI development
+- /docs/05-Building-Custom-Agents/ - SDK-based agent construction
+- /docs/06-AI-Cloud-Native-Development/ - Kubernetes, Docker, Helm deployment
+
+## Getting Started
+
+Start with the Thesis: /docs/thesis
+Then continue to the Preface: /docs/preface-agent-native
+Begin learning with Chapter 1: /docs/01-General-Agents-Foundations/01-agent-factory-paradigm/
+
+## Key Concepts
+
+### What is a Digital FTE?
+A Digital FTE (Full-Time Equivalent) is an AI employee that performs real work autonomously under human supervision. Unlike traditional software, Digital FTEs work 168 hours per week at a fraction of human cost.
+
+### What is Spec-Driven Development?
+Spec-Driven Development treats specifications as the source of truth. Humans write specs, AI generates code, tests, and documentation from those specs. This enables AI-native software development.
+
+### What is an Agent Skill?
+An Agent Skill is a reusable package of intelligence defined in SKILL.md format. Skills contain persona, logic, context, MCP integrations, and safety guardrails.
+
+## Contact
+
+- Website: https://imsanghaar.vercel.app
+- GitHub: https://github.com/imsanghaar
+- Book: https://imsanghaar.vercel.app

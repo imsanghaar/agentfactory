@@ -1,0 +1,48 @@
+{
+  "name": "af-practice",
+  "version": "0.1.2",
+  "description": "Local practice server for Agent Factory exercises — launches Claude Code in a PTY with exercise workspaces",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panaversity/agentfactory.git",
+    "directory": "apps/practice-server"
+  },
+  "homepage": "https://agentfactory.dev",
+  "keywords": [
+    "claude-code",
+    "practice",
+    "terminal",
+    "pty",
+    "exercises",
+    "ai-agents"
+  ],
+  "type": "module",
+  "bin": {
+    "practice": "dist/bin/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/main.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "extract-zip": "^2.0.1",
+    "hono": "^4.11.9",
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}

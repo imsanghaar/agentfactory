@@ -1,0 +1,449 @@
+---
+slug: /General-Agents-Foundations/general-agents/settings-hierarchy
+title: "Settings Hierarchy"
+sidebar_position: 14
+chapter: 3
+lesson: 14
+duration_minutes: 8
+
+# PEDAGOGICAL LAYER METADATA
+primary_layer: "Layer 3"
+layer_progression: "L3 (Intelligence Design - understanding configuration as organizational pattern)"
+layer_1_foundation: "N/A"
+layer_2_collaboration: "AI explains settings hierarchy conceptually, student verifies which settings exist on their system"
+layer_3_intelligence: "Understanding three-level hierarchy as reusable organizational intelligence pattern (user/project/local), recognizing when to apply each level for team collaboration"
+layer_4_capstone: "N/A"
+
+# HIDDEN SKILLS METADATA
+skills:
+  - name: "Understanding Configuration Precedence and Hierarchy"
+    proficiency_level: "B1"
+    category: "Conceptual"
+    bloom_level: "Understand"
+    digcomp_area: "Problem-Solving"
+    measurable_at_this_level: "Student can explain three-level settings hierarchy, identify precedence order (local > project > user), verify which settings files exist, and determine appropriate level for different configuration scenarios"
+
+learning_objectives:
+  - objective: "Understand Claude Code's three-level settings hierarchy"
+    proficiency_level: "B1"
+    bloom_level: "Understand"
+    assessment_method: "Explanation of user/project/local levels and their scope differences"
+  - objective: "Recognize precedence order: local > project > user"
+    proficiency_level: "B1"
+    bloom_level: "Understand"
+    assessment_method: "Correct prediction of which setting wins in multi-level conflict scenarios"
+  - objective: "Check which settings files exist on your system"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Verification of settings file existence using ls commands"
+  - objective: "Know when to use each settings level"
+    proficiency_level: "B1"
+    bloom_level: "Analyze"
+    assessment_method: "Decision analysis matching configuration scenarios to appropriate hierarchy level"
+
+# Cognitive load tracking
+cognitive_load:
+  new_concepts: 5
+  assessment: "5 concepts (three-level hierarchy, user/project/local scopes, precedence order, organizational intelligence pattern, team vs personal settings) - within B1 limit of 10 ✓"
+
+# Differentiation guidance
+differentiation:
+  extension_for_advanced: "Design multi-team configuration strategies with shared project standards and personal customizations; understand .gitignore patterns for settings.local.json"
+  remedial_for_struggling: "Focus on visual hierarchy diagram; understand user-level first before project and local complexity"
+
+# Generation metadata
+generated_by: "content-implementer v1.0.0 (029-chapter-5-refinement)"
+source_spec: "specs/029-chapter-5-refinement/spec.md"
+created: "2025-01-17"
+last_modified: "2025-01-17"
+git_author: "Claude Code"
+workflow: "/sp.implement"
+version: "2.0.0"
+
+teaching_guide:
+  lesson_type: "core"
+  session_group: 5
+  session_title: "Settings, Hooks, and Plugin Synthesis"
+  key_points:
+    - "The three-level hierarchy (user/project/local) maps to personal/team/experiment scopes — not just technical layers"
+    - "Precedence order local > project > user means a forgotten settings.local.json can silently override team standards"
+    - "Project settings belong in version control; local settings belong in .gitignore — mixing these up breaks team consistency"
+    - "Students do NOT configure settings in this lesson — they only learn the hierarchy exists, with hands-on deferred to Part 5"
+  misconceptions:
+    - "Students assume project settings always win because they sound more important — actually local always overrides project"
+    - "Students confuse .claude/settings.json (project, shared) with .claude/settings.local.json (personal, gitignored) and may commit local overrides"
+    - "Students think they need to configure settings now — this lesson is conceptual; premature configuration creates confusion"
+  discussion_prompts:
+    - "Have you worked on a team where one person's local config silently broke shared behavior? How would a three-level hierarchy have prevented that?"
+    - "When would you deliberately use local settings to override a team standard — and when would that be a bad idea?"
+  teaching_tips:
+    - "Use the ASCII precedence diagram in the 'Visual Hierarchy' section as your primary teaching anchor — have students trace a conflict scenario through it"
+    - "Walk through the outputStyle example (Concise at user, Explanatory at project, Verbose at local) step by step before showing the answer"
+    - "Emphasize the .gitignore rule early: settings.json = committed, settings.local.json = gitignored — students who miss this create real team problems later"
+    - "Connect back to Lesson 13's compiled skills: settings hierarchy controls which skills and MCP servers are available at each scope"
+  assessment_quick_check:
+    - "If user-level sets outputStyle to Concise and project-level sets it to Explanatory, which is active when working in that project?"
+    - "Name the file path for each settings level: user, project, and local"
+    - "Which settings file should NEVER be committed to git, and why?"
+
+# Legacy compatibility
+prerequisites:
+  - "Lessons 01-13: All prior Claude Code features understood"
+  - "Understanding of configuration management and team coordination"
+---
+
+# Settings Hierarchy
+
+You've built **Skills** (Lesson 9), used **Subagents** (Lesson 11), and connected **MCP servers** (Lesson 12). As your agent system grows, so does the complexity.
+
+How do you control permissions for all these tools? How do you ensure your team uses the same safety rules? How do you switch models without editing every file?
+
+## What Are Settings?
+
+Claude Code has a **settings system** that lets you customize how it behaves. These settings control things like:
+
+- Permission modes (whether Claude asks before edits)
+- Output preferences (how Claude formats responses)
+- Project-specific defaults (which tools Claude prioritizes)
+- Team standards (shared rules for collaborative work)
+
+Instead of having one global settings file, Claude Code uses a **three-level hierarchy**. This design lets you have **personal preferences, project standards, and temporary overrides** all at the same time.
+
+#### 💬 AI Colearning Prompt
+
+> "Explain why applications use hierarchical configuration systems instead of a single global settings file. What problems does hierarchy solve?"
+
+---
+
+## The Three Settings Levels
+
+![Pyramid showing three configuration levels—Global settings (base, system-wide defaults), Project settings (middle, .claude/config for repo), File settings (top, frontmatter overrides)—with precedence arrows showing file > project > global](https://pub-80f166e40b854371ac7b05053b435162.r2.dev/books/ai-native-dev/static/images/part-2/chapter-05/settings-hierarchy-global-project-file.png)
+
+Claude Code settings exist at three levels, from general to specific:
+
+### Level 1: User Settings (Most General)
+
+**Location**: `~/.claude/settings.json`
+
+**Scope**: Applies to **all your Claude Code projects** on your machine
+
+**Applies to**: Every project you work on, across your entire system
+
+**When to use this level**:
+
+- Your personal preferences (always use dark mode, prefer verbose output)
+- Your coding style (consistent formatting choices)
+- Your workflow defaults (always prefer plan mode for safety)
+
+**Example content**:
+
+```json
+{
+  "model": "claude-sonnet-4-5-20250929",
+  "outputStyle": "Concise",
+  "includeCoAuthoredBy": true
+}
+```
+
+### Level 2: Project Settings (Middle)
+
+**Location**: `.claude/settings.json` (inside your project directory)
+
+**Scope**: Applies to **just this project**
+
+**Applies to**: Only when you're working in this specific project
+
+**When to use this level**:
+
+- Team standards (your team agrees on permission settings)
+- Project-specific customizations (this project uses a different framework)
+- Temporary standards (during alpha testing, use stricter permissions)
+
+**Example content**:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": ["Bash(npm run test:*)"],
+    "deny": ["Read(./.env)"]
+  },
+  "env": {
+    "PROJECT_ENV": "development"
+  }
+}
+```
+
+### Level 3: Local Settings (Most Specific)
+
+**Location**: `.claude/settings.local.json` (inside your project directory)
+
+**Scope**: Applies to **this project only, on your machine only**
+
+**Applies to**: Just your local work in this project (not shared with team)
+
+**When to use this level**:
+
+- Temporary overrides (you need different settings just for today)
+- Personal experiments (testing a new workflow locally)
+- Machine-specific settings (your laptop needs different settings than your desktop)
+
+#### 💬 AI Colearning Prompt
+
+> "Why would you use three levels of settings (user/project/local) instead of just one global settings file? What flexibility does this hierarchy provide?"
+
+**Example content**:
+
+```json
+{
+  "outputStyle": "Verbose",
+  "sandbox": {
+    "enabled": true
+  }
+}
+```
+
+---
+
+## Why Settings Hierarchy Matters
+
+### The Organizational Intelligence Framework
+
+**Team Collaboration Without Conflicts**: Settings hierarchy enables teams to share standards while allowing personal customization and local experimentation—all without stepping on each other's toes.
+
+**Three Layers of Context** (from general to specific):
+
+- **User settings** (`~/.claude/settings.json`): Your personal AI preferences that follow you across ALL projects
+- **Project settings** (`.claude/settings.json`): Team-agreed standards that everyone on the project shares (shared via git)
+- **Local settings** (`.claude/settings.local.json`): Your private testing and experiments (gitignored, never committed)
+
+This connects to earlier lessons:
+
+- **CLAUDE.md (Lesson 05)** provides content context at the project level
+- **Skills (Lesson 09)** can be enabled at any hierarchy level
+- **Plugins (Lesson 16)** will use this same hierarchy to configure bundled capabilities
+
+### Practical Applications
+
+#### 1. Cross-Project Preferences (User Level)
+
+You always prefer verbose output and specific model settings.
+→ Set these in `~/.claude/settings.json`
+→ These preferences follow you across ALL projects
+→ Project or local settings can override for specific needs
+
+**Example**:
+
+```json
+{
+  "model": "opus",
+  "outputStyle": "Verbose",
+  "includeCoAuthoredBy": true
+}
+```
+
+#### 2. Team Standards (Project Level)
+
+Your team decides: "All projects should deny access to .env files for security."
+→ Set `permissions.deny: ["Read(./.env)"]` at **project level** (`.claude/settings.json`)
+→ Everyone on the team gets this standard automatically
+→ Overrides user-level settings for this project
+
+**Example**:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "deny": ["Read(./.env)"]
+  },
+  "env": {
+    "PROJECT_ENV": "development"
+  }
+}
+```
+
+#### 3. Personal Workflow Experiments (Local Level)
+
+You want to test a new workflow without affecting the team.
+→ Create `.claude/settings.local.json` with your experimental settings
+→ Your changes stay private, invisible to the team
+→ Local overrides take precedence over both project and user settings
+→ Delete the file to revert to project/user standards
+
+**Example**:
+
+```json
+{
+  "outputStyle": "Concise",
+  "sandbox": {
+    "enabled": true
+  }
+}
+```
+
+### Real-World Impact
+
+Without this hierarchy, teams either enforce rigid standards (no personal customization) or descend into chaos (everyone's setup is different). The three-level system gives you both consistency AND flexibility.
+
+#### 🎓 Expert Insight
+
+> In AI-native development, configuration hierarchy mirrors organizational intelligence. User settings = your personal defaults. Project settings = team agreements. Local settings = safe experimentation space. Understanding WHEN to configure at each level is more valuable than memorizing settings syntax.
+
+---
+
+## Precedence: Which Settings Win?
+
+When the same setting exists at multiple levels, Claude Code follows this **precedence order** (most specific wins):
+
+**Local > Project > User**
+
+This means:
+
+- **Local settings** override both project and user settings
+- **Project settings** override user settings
+- **User settings** are the fallback when nothing more specific exists
+
+### Visual Hierarchy
+
+```
+┌─────────────────────────────────┐
+│   LOCAL SETTINGS                │
+│   .claude/settings.local.json    │  ← Most Specific (Highest Priority)
+│   (just your machine, temporary) │
+└─────────────────┬───────────────┘
+                  ↑ Overrides
+┌─────────────────────────────────┐
+│   PROJECT SETTINGS              │
+│   .claude/settings.json          │  ← Team/Project Level
+│   (shared with team)             │
+└─────────────────┬───────────────┘
+                  ↑ Overrides
+┌─────────────────────────────────┐
+│   USER SETTINGS                 │
+│   ~/.claude/settings.json        │  ← Most General (Fallback)
+│   (all projects on this machine) │
+└─────────────────────────────────┘
+```
+
+---
+
+## Example: Settings Precedence in Action
+
+Let's say you have:
+
+**User level** (`~/.claude/settings.json`):
+
+```json
+{
+  "outputStyle": "Concise"
+}
+```
+
+**Project level** (`.claude/settings.json` in your project):
+
+```json
+{
+  "outputStyle": "Explanatory"
+}
+```
+
+**Local level** (`.claude/settings.local.json` in your project):
+
+```json
+{
+  // Empty or not set
+}
+```
+
+**Result**: Claude Code uses `outputStyle: "Explanatory"` (from project level, since it overrides user level)
+
+---
+
+### What If Local Level Is Set?
+
+Now you add a temporary local override:
+
+**Local level** (`.claude/settings.local.json`):
+
+```json
+{
+  "outputStyle": "Verbose"
+}
+```
+
+**New Result**: Claude Code uses `outputStyle: "Verbose"` (from local level, which overrides both project and user)
+
+**Why this matters**: You can temporarily change your workflow for this one session without affecting your project's standards or your personal preferences. Tomorrow, when you delete the local settings file, you're back to `"Explanatory"` (project level).
+
+#### 🤝 Practice Exercise
+
+> **Ask your AI**: "I have outputStyle set to 'Concise' at user level and 'Explanatory' at project level. I'm working in this project. Which style is active? If I create a .claude/settings.local.json file with outputStyle: 'Verbose', what happens?"
+
+**Expected Outcome**: AI explains that project level is active (Explanatory), and creating a local override would switch to Verbose—helping you understand how to temporarily override settings without changing team standards.
+
+---
+
+## The .claude/ Directory: Don't Delete It
+
+You might see a `.claude/` directory in your project and wonder: "Is this important? Can I delete it?"
+
+**Short answer**: Don't delete it.
+
+**What it contains**:
+
+- `settings.json` — Project-level settings
+- `settings.local.json` — Your local, temporary overrides
+- Other configuration files Claude Code needs
+
+The `.claude/` directory is how Claude Code stores project customization. Deleting it would reset all your project settings to defaults.
+
+**What you should do**: Treat `.claude/settings.json` like your `.gitignore` or `package.json`—it's part of your project configuration. Include it in version control (share with team). But `.claude/settings.local.json` should probably be in your `.gitignore` (keep it personal).
+
+#### 💬 AI Colearning Prompt
+
+> "Explain the difference between .claude/settings.json and .claude/settings.local.json. Which one should be in .gitignore? Why?"
+
+---
+
+## Not Configuring Yet—This Is Part 5 Content
+
+This lesson teaches you that **settings exist and how the hierarchy works**. You don't need to configure them yet. Basic Claude Code usage works perfectly fine with defaults.
+
+**Detailed settings configuration** (what specific settings do, how to change them, team policies) is **Part 4 content** (Spec-Driven Development, team workflows). For now, just know:
+
+- ✅ Settings exist at three levels
+- ✅ Precedence is: local > project > user
+- ✅ This hierarchy enables team collaboration + personal customization
+
+That's enough to understand when you encounter `.claude/settings.json` references in documentation.
+
+---
+
+## Try With AI
+
+Let's understand how Claude Code's three-level settings hierarchy enables both team collaboration and personal customization.
+
+**💡 Understand the Hierarchy:**
+
+> "Claude Code has settings at three levels: user (~/.claude/settings.json), project (.claude/settings.json), and local (.claude/settings.local.json). Explain what each level is for and why having three levels is better than one global settings file. Give me concrete examples of what I'd put at each level."
+
+**What you're learning:** Configuration architecture—how layered settings enable both personal customization and team standardization without conflict.
+
+**🔍 Verify Your Current Configuration:**
+
+> "Help me check which settings files exist on my system. Walk me through the commands to check each level (user, project, local). Then, based on what exists, explain which settings are actually controlling my current Claude Code session and why."
+
+**What you're learning:** Configuration debugging—knowing what's actually active vs. what you think is active. This skill prevents hours of "why isn't this working?"
+
+**🧪 Test Precedence Rules:**
+
+> "Let's test precedence with a scenario: User level has outputStyle='Concise', Project level has outputStyle='Explanatory', and Local level is not set. Which outputStyle is active and why? Then, if I create a .claude/settings.local.json file with outputStyle='Verbose', what happens? Walk me through the precedence logic."
+
+**What you're learning:** Precedence mental model—understanding which settings "win" when layers conflict. This applies to any layered configuration system.
+
+**🚀 Plan for Team Workflows:**
+
+> "When I learn team workflows in Part 5, help me understand which settings level to use for different scenarios: personal preferences (my editor style, my default verbosity), team standards (shared coding conventions, security policies), and temporary experiments (testing new configurations). Explain the decision framework for choosing the right level."
+
+**What you're learning:** Configuration strategy—deciding where settings belong before creating them. Planning prevents the mess of scattered configurations.

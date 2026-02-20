@@ -1,0 +1,212 @@
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.loginPrompt {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* Stat cards row */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: var(--gf-card-bg);
+  border: 1px solid var(--gf-card-border);
+  border-radius: var(--gf-card-radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.statCardClickable {
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.statCardClickable:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.statValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.statLabel {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.xpValue {
+  color: var(--gf-xp-color);
+}
+
+.rankValue {
+  color: var(--gf-rank-color);
+}
+
+.streakValue {
+  color: var(--gf-streak-color);
+}
+
+.perfectValue {
+  color: var(--gf-perfect-color);
+}
+
+/* Sections */
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gf-card-border);
+}
+
+/* Chapters */
+.chapterList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chapterCard {
+  background: var(--gf-card-bg);
+  border: 1px solid var(--gf-card-border);
+  border-radius: var(--gf-card-radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.chapterInfo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.chapterTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.chapterMeta {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  display: flex;
+  gap: 1rem;
+}
+
+.progressBar {
+  width: 120px;
+  height: 6px;
+  background: var(--gf-bar-track);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--gf-bar-fill);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Badges */
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.badgeCard {
+  background: var(--gf-card-bg);
+  border: 1px solid var(--gf-card-border);
+  border-radius: var(--gf-card-radius);
+  padding: 1rem;
+  text-align: center;
+}
+
+.badgeLocked {
+  opacity: 0.45;
+}
+
+.badgeIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.badgeName {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.15rem;
+}
+
+.badgeDesc {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.badgeDate {
+  font-size: 0.7rem;
+  color: var(--gf-badge-earned);
+  margin-top: 0.25rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--ifm-color-emphasis-500);
+}
+
+/* Toggle */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  background: var(--gf-card-bg);
+  border: 1px solid var(--gf-card-border);
+  border-radius: var(--gf-card-radius);
+}
+
+.toggleInput {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--gf-xp-color);
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 0.9rem;
+}

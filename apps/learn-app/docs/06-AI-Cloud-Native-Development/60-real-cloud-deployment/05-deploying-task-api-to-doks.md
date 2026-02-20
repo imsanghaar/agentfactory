@@ -1,0 +1,700 @@
+---
+sidebar_position: 5
+title: "Deploying Task API to DOKS"
+description: "Deploy the complete Task API stack with Dapr, Traefik Ingress, and cert-manager TLS to DigitalOcean Kubernetes"
+keywords: [doks, kubernetes, deployment, dapr, traefik, cert-manager, tls, production]
+chapter: 60
+lesson: 5
+duration_minutes: 35
+
+skills:
+  - name: "Full Stack Cloud Deployment"
+    proficiency_level: "B1"
+    category: "Applied"
+    bloom_level: "Apply"
+    digcomp_area: "3. Digital Content Creation"
+    measurable_at_this_level: "Student deploys complete Task API stack to DOKS with Dapr, Ingress, and TLS"
+  - name: "Deployment Orchestration"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "5. Problem Solving"
+    measurable_at_this_level: "Student understands and executes correct deployment order for dependent components"
+  - name: "AI-Assisted Troubleshooting"
+    proficiency_level: "B1"
+    category: "Applied"
+    bloom_level: "Apply"
+    digcomp_area: "5. Problem Solving"
+    measurable_at_this_level: "Student collaborates with AI to diagnose and resolve deployment issues"
+  - name: "TLS Configuration"
+    proficiency_level: "B1"
+    category: "Technical"
+    bloom_level: "Apply"
+    digcomp_area: "4. Safety"
+    measurable_at_this_level: "Student configures Let's Encrypt certificates for production HTTPS"
+  - name: "Cloud Verification"
+    proficiency_level: "B1"
+    category: "Applied"
+    bloom_level: "Analyze"
+    digcomp_area: "5. Problem Solving"
+    measurable_at_this_level: "Student verifies full stack deployment is operational via curl and kubectl"
+  - name: "Bidirectional AI Collaboration"
+    proficiency_level: "B1"
+    category: "Soft"
+    bloom_level: "Apply"
+    digcomp_area: "2. Communication and Collaboration"
+    measurable_at_this_level: "Student iterates with AI to refine deployment configuration"
+
+learning_objectives:
+  - objective: "Execute a complete production deployment to DOKS following the correct component sequence"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Task API accessible via HTTPS with all components running"
+  - objective: "Initialize Dapr on a cloud Kubernetes cluster"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Dapr pods running in dapr-system namespace"
+  - objective: "Configure Traefik Ingress Controller with cloud Load Balancer"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Traefik Service has EXTERNAL-IP assigned"
+  - objective: "Set up cert-manager with Let's Encrypt ClusterIssuer for automatic TLS"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Certificate resource shows Ready=True"
+  - objective: "Customize Helm values for cloud-specific requirements"
+    proficiency_level: "B1"
+    bloom_level: "Apply"
+    assessment_method: "Production values file includes domain, TLS annotations, resource limits"
+  - objective: "Troubleshoot certificate issuance with AI collaboration"
+    proficiency_level: "B1"
+    bloom_level: "Analyze"
+    assessment_method: "Student identifies and resolves cert-manager issues through iterative diagnosis"
+
+cognitive_load:
+  new_concepts: 6
+  assessment: "B1-appropriate: deployment sequence, Dapr cloud init, Ingress install, cert-manager setup, Helm cloud values, verification"
+
+differentiation:
+  extension_for_advanced: "Add Prometheus/Grafana monitoring stack to deployment sequence"
+  remedial_for_struggling: "Focus on deployment sequence only; skip Helm values customization"
+---
+
+# Deploying Task API to DOKS
+
+Your DOKS cluster is provisioned, kubectl is connected, and you understand DNS and Load Balancers. Now comes the moment you've been building toward: deploying your complete Task API stack to production infrastructure.
+
+This isn't a single `kubectl apply` command. A production deployment involves multiple components that depend on each other. Dapr must exist before your application can use its sidecars. The Ingress controller must have an external IP before cert-manager can validate domain ownership. Certificates must be issued before HTTPS works.
+
+The order matters. Get it wrong, and you'll spend hours debugging why pods are stuck in CrashLoopBackOff or why certificates show "pending" forever.
+
+---
+
+## The Deployment Sequence: Order Matters
+
+Think of deploying to production like building a house. You can't install windows before framing the walls, and you can't run electricity before the walls are up. Cloud Kubernetes deployments follow the same logic:
+
+```
+Step 1: Dapr (distributed application runtime)
+    │
+    ▼
+Step 2: Traefik Ingress Controller (receives traffic)
+    │
+    ▼
+Step 3: cert-manager (issues TLS certificates)
+    │
+    ▼
+Step 4: Task API Helm Release (your application)
+    │
+    ▼
+Step 5: Verification (prove it works)
+```
+
+**Why this order?**
+
+- **Dapr first**: Your Task API pods need Dapr sidecars injected. If Dapr isn't installed, pods fail to start.
+- **Traefik second**: cert-manager needs an Ingress controller to handle HTTP-01 challenges. No Ingress = no certificate validation.
+- **cert-manager third**: You want HTTPS from the start. Installing cert-manager before your app means certificates are ready when traffic arrives.
+- **Task API last**: Now all dependencies exist. Your app deploys with sidecars, routes through Ingress, and serves over HTTPS.
+
+---
+
+## Step 1: Initialize Dapr on DOKS
+
+Dapr provides service invocation, state management, and pub/sub for your Task API. On a cloud cluster, initialization is nearly identical to local—but the resources run on cloud nodes.
+
+### Install Dapr CLI (if not already installed)
+
+```bash
+# macOS
+brew install dapr/tap/dapr-cli
+
+# Linux
+wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+```
+
+**Output:**
+```
+Dapr CLI installed successfully.
+CLI version: 1.13.0
+Runtime version: n/a
+```
+
+### Initialize Dapr on the Cluster
+
+```bash
+dapr init -k --wait
+```
+
+**Output:**
+```
+Making the jump to hyperspace...
+Note: To install Dapr using Helm, see here: https://docs.dapr.io/operations/hosting/kubernetes/kubernetes-deploy/#install-with-helm
+Deploying the Dapr control plane to your cluster...
+Success! Dapr has been installed to namespace dapr-system. To verify, run `dapr status -k`
+```
+
+### Verify Dapr Installation
+
+```bash
+dapr status -k
+```
+
+**Output:**
+```
+  NAME                   NAMESPACE    HEALTHY  STATUS   REPLICAS  VERSION  AGE  CREATED
+  dapr-sentry            dapr-system  True     Running  1         1.13.0   45s  2024-12-23 14:30:00
+  dapr-operator          dapr-system  True     Running  1         1.13.0   45s  2024-12-23 14:30:00
+  dapr-placement-server  dapr-system  True     Running  1         1.13.0   45s  2024-12-23 14:30:00
+  dapr-sidecar-injector  dapr-system  True     Running  1         1.13.0   45s  2024-12-23 14:30:00
+  dapr-dashboard         dapr-system  True     Running  1         1.13.0   45s  2024-12-23 14:30:00
+```
+
+All five Dapr components are running. The sidecar-injector will automatically add Dapr sidecars to pods with the correct annotations.
+
+---
+
+## Step 2: Install Traefik Ingress Controller
+
+Traefik will receive all incoming traffic and route it to your services. On DOKS, installing Traefik creates a DigitalOcean Load Balancer automatically.
+
+### Add Traefik Helm Repository
+
+```bash
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+```
+
+**Output:**
+```
+"traefik" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "traefik" chart repository
+Update Complete.
+```
+
+### Install Traefik
+
+```bash
+helm install traefik traefik/traefik \
+  --namespace traefik \
+  --create-namespace \
+  --set service.type=LoadBalancer
+```
+
+**Output:**
+```
+NAME: traefik
+LAST DEPLOYED: Mon Dec 23 14:32:15 2024
+NAMESPACE: traefik
+STATUS: deployed
+REVISION: 1
+```
+
+### Wait for External IP
+
+The Load Balancer takes 2-3 minutes to provision. Wait for it:
+
+```bash
+kubectl get svc -n traefik --watch
+```
+
+**Output (after ~2 minutes):**
+```
+NAME      TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)                      AGE
+traefik   LoadBalancer   10.245.100.42   143.198.123.45   80:31024/TCP,443:30812/TCP   2m15s
+```
+
+When `EXTERNAL-IP` shows an IP address (not `<pending>`), your Load Balancer is ready. Note this IP—you'll need it for DNS.
+
+### Configure DNS
+
+Point your domain to the Load Balancer IP:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | tasks | 143.198.123.45 |
+| A | *.tasks | 143.198.123.45 |
+
+If you don't have a domain, use `nip.io` for testing: `tasks.143.198.123.45.nip.io` automatically resolves to that IP.
+
+---
+
+## Step 3: Install cert-manager
+
+cert-manager automates TLS certificate issuance from Let's Encrypt. Once installed, it watches for Certificate resources and automatically obtains and renews certificates.
+
+### Install cert-manager
+
+```bash
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --set installCRDs=true
+```
+
+**Output:**
+```
+NAME: cert-manager
+LAST DEPLOYED: Mon Dec 23 14:35:22 2024
+NAMESPACE: cert-manager
+STATUS: deployed
+REVISION: 1
+```
+
+### Verify cert-manager Pods
+
+```bash
+kubectl get pods -n cert-manager
+```
+
+**Output:**
+```
+NAME                                       READY   STATUS    RESTARTS   AGE
+cert-manager-7b8c5c5d5c-xb9j8              1/1     Running   0          45s
+cert-manager-cainjector-6b8c5c5d5c-k2m4p   1/1     Running   0          45s
+cert-manager-webhook-5b8c5c5d5c-j9n3l      1/1     Running   0          45s
+```
+
+### Create ClusterIssuer for Let's Encrypt
+
+Create a file `letsencrypt-prod.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
+```
+
+Apply it:
+
+```bash
+kubectl apply -f letsencrypt-prod.yaml
+```
+
+**Output:**
+```
+clusterissuer.cert-manager.io/letsencrypt-prod created
+```
+
+### Verify ClusterIssuer
+
+```bash
+kubectl get clusterissuer
+```
+
+**Output:**
+```
+NAME               READY   AGE
+letsencrypt-prod   True    30s
+```
+
+`Ready: True` means cert-manager can communicate with Let's Encrypt.
+
+---
+
+## Step 4: Deploy Task API with Helm
+
+Now deploy your Task API using the Helm chart from Chapter 51. Create a production values file that includes your domain and TLS configuration.
+
+### Create Production Values File
+
+Create `values-doks.yaml`:
+
+```yaml
+# Task API Production Configuration for DOKS
+replicaCount: 2
+
+image:
+  repository: your-registry/task-api
+  tag: "v1.0.0"
+  pullPolicy: Always
+
+# Enable Dapr sidecar injection
+dapr:
+  enabled: true
+  appId: "task-api"
+  appPort: 8000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# Ingress with TLS
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+  hosts:
+    - host: tasks.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: task-api-tls
+      hosts:
+        - tasks.yourdomain.com
+
+# Cloud-appropriate resources
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+# Environment configuration
+env:
+  - name: LOG_LEVEL
+    value: "INFO"
+  - name: ENVIRONMENT
+    value: "production"
+```
+
+### Deploy Task API
+
+```bash
+helm install task-api ./task-api-chart \
+  -f values-doks.yaml \
+  --namespace default
+```
+
+**Output:**
+```
+NAME: task-api
+LAST DEPLOYED: Mon Dec 23 14:40:33 2024
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+```
+
+### Wait for Pods
+
+```bash
+kubectl get pods --watch
+```
+
+**Output:**
+```
+NAME                        READY   STATUS    RESTARTS   AGE
+task-api-6f8c5c5d5c-abc12   2/2     Running   0          45s
+task-api-6f8c5c5d5c-def34   2/2     Running   0          45s
+```
+
+Notice `2/2` READY—that's your application container plus the Dapr sidecar.
+
+---
+
+## Step 5: Verify the Complete Stack
+
+### Check Certificate Status
+
+```bash
+kubectl get certificate
+```
+
+**Output:**
+```
+NAME           READY   SECRET         AGE
+task-api-tls   True    task-api-tls   2m
+```
+
+`READY: True` means Let's Encrypt issued your certificate successfully.
+
+If `READY` shows `False`, check the Certificate resource:
+
+```bash
+kubectl describe certificate task-api-tls
+```
+
+Look for events explaining why issuance failed (usually DNS not propagated or HTTP challenge failed).
+
+### Check Ingress
+
+```bash
+kubectl get ingress
+```
+
+**Output:**
+```
+NAME       CLASS     HOSTS                  ADDRESS          PORTS     AGE
+task-api   traefik   tasks.yourdomain.com   143.198.123.45   80, 443   3m
+```
+
+### Test HTTPS Endpoint
+
+```bash
+curl https://tasks.yourdomain.com/health
+```
+
+**Output:**
+```json
+{"status": "healthy", "version": "1.0.0"}
+```
+
+Your Task API is running on production infrastructure with:
+- Dapr sidecar for distributed capabilities
+- Traefik handling ingress traffic
+- Let's Encrypt TLS certificate
+- Cloud Load Balancer distributing traffic
+
+### Full Stack Verification Commands
+
+Run these to confirm everything is operational:
+
+```bash
+# Dapr components
+dapr status -k
+
+# Traefik with Load Balancer
+kubectl get svc -n traefik
+
+# cert-manager
+kubectl get pods -n cert-manager
+
+# Certificate issued
+kubectl get certificate
+
+# Task API pods with sidecars
+kubectl get pods
+
+# Ingress routing
+kubectl get ingress
+
+# Final test
+curl -v https://tasks.yourdomain.com/health
+```
+
+**Expected successful output pattern:**
+```
+< HTTP/2 200
+< content-type: application/json
+<
+{"status": "healthy", "version": "1.0.0"}
+```
+
+---
+
+## What You've Deployed
+
+Your production stack now includes:
+
+| Component | Purpose | Namespace |
+|-----------|---------|-----------|
+| **Dapr** | Service mesh, state, pub/sub | dapr-system |
+| **Traefik** | Ingress controller, Load Balancer | traefik |
+| **cert-manager** | Automatic TLS certificates | cert-manager |
+| **Task API** | Your application with Dapr sidecar | default |
+
+This is the same architecture pattern used by production AI services. The components are loosely coupled—you can upgrade Traefik without touching your application, or switch cert-manager issuers without redeploying.
+
+---
+
+## Common Issues and Diagnosis
+
+### Certificate Stuck on "Pending"
+
+**Symptom:**
+```bash
+kubectl get certificate
+NAME           READY   SECRET         AGE
+task-api-tls   False   task-api-tls   10m
+```
+
+**Diagnosis:**
+```bash
+kubectl describe certificate task-api-tls
+kubectl get challenges
+```
+
+**Common causes:**
+- DNS not propagated (wait 5 minutes, check with `dig tasks.yourdomain.com`)
+- Ingress class mismatch (verify `traefik` in both ClusterIssuer and Ingress)
+- HTTP-01 challenge failing (check Load Balancer firewall allows port 80)
+
+### Pods Show 1/2 Ready
+
+**Symptom:** Task API pods show `1/2` instead of `2/2`
+
+**Diagnosis:**
+```bash
+kubectl logs task-api-xyz -c daprd
+```
+
+**Common causes:**
+- Dapr not initialized (run `dapr init -k`)
+- Missing Dapr annotations in deployment
+- Dapr sidecar-injector not running
+
+### No External IP on Load Balancer
+
+**Symptom:** `kubectl get svc -n traefik` shows `<pending>` for EXTERNAL-IP
+
+**Diagnosis:**
+- Check DigitalOcean dashboard for Load Balancer quota
+- Verify cluster has `--auto-upgrade` or correct DOKS version
+- Check node capacity (Load Balancer needs healthy nodes)
+
+---
+
+## Try With AI
+
+**Challenge**: Deploy your Task API to DOKS with the full production stack.
+
+### Part 1: Deployment Planning
+
+Open Claude Code in your project directory and ask:
+
+```
+I have a DOKS cluster running. Help me plan the deployment order
+for Task API with Dapr, Traefik Ingress, and cert-manager TLS.
+```
+
+Record the deployment sequence AI suggests. Does it match the order in this lesson? Note any differences.
+
+### Part 2: Configuration Review
+
+AI will suggest default configurations. Evaluate them:
+
+- Does the Helm values file include my domain?
+- Is TLS enabled with Let's Encrypt production issuer?
+- Are resource requests/limits appropriate for DOKS?
+
+Tell AI your specific requirements:
+
+```
+My domain is tasks.example.com, I want production Let's Encrypt
+certificates, and 512Mi memory limit for Task API pods.
+```
+
+Watch how AI adapts the configuration to your constraints.
+
+### Part 3: Deployment Execution
+
+Execute the deployment commands AI provides. Watch for:
+
+- Dapr pods appearing in `dapr-system` namespace
+- Traefik LoadBalancer getting `EXTERNAL-IP`
+- cert-manager Certificate showing `Ready: True`
+
+If any step fails, share the error with AI:
+
+```
+The Traefik service shows EXTERNAL-IP as <pending> after 5 minutes.
+Here's kubectl describe svc traefik -n traefik output: [paste output]
+```
+
+### Part 4: Troubleshooting Together
+
+If your certificate isn't issued after deployment:
+
+```
+My Certificate shows Ready: False. Here's the output of
+kubectl describe certificate task-api-tls: [paste output]
+```
+
+Work through the diagnosis together. What did AI suggest checking? What did you discover about your configuration?
+
+### Part 5: Verification
+
+Test your production endpoint:
+
+```bash
+curl https://tasks.yourdomain.com/health
+```
+
+Ask yourself:
+- What improved through iteration with AI?
+- Which configuration details did you refine based on AI suggestions?
+- What did you correct when AI made assumptions that didn't match your setup?
+
+**Safety Note**: Never share API tokens, passwords, or other secrets in prompts. Configure secrets through Kubernetes Secrets, not environment variables in values files.
+
+---
+
+## Reflect on Your Skill
+
+Test your `multi-cloud-deployer` skill against what you learned:
+
+### Test Your Skill
+
+```
+Using my multi-cloud-deployer skill, generate a complete deployment
+script for DOKS that includes Dapr, Traefik, cert-manager, and
+a Helm application with TLS.
+```
+
+### Identify Gaps
+
+Does your skill:
+- Know the correct deployment order (Dapr -> Traefik -> cert-manager -> app)?
+- Include wait commands between dependent components?
+- Generate ClusterIssuer for Let's Encrypt?
+- Add TLS annotations to Ingress configuration?
+
+### Improve Your Skill
+
+If gaps exist:
+
+```
+My multi-cloud-deployer skill is missing full stack deployment patterns.
+Update it to include:
+- Deployment sequence for DOKS (Dapr, Traefik, cert-manager)
+- Wait commands between component installations
+- ClusterIssuer configuration for Let's Encrypt
+- Helm values with TLS annotations for Traefik Ingress
+```
+
+By the end of this chapter, your skill handles complete production deployments—not just cluster provisioning.

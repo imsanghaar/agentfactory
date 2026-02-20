@@ -1,0 +1,74 @@
+---
+sidebar_position: 47
+title: "Chapter 47: Evals - Measuring Agent Performance"
+description: "Systematic approach to measuring AI agent reasoning quality with evaluation frameworks"
+---
+
+# Chapter 47: Evals - Measuring Agent Performance
+
+**Part**: 6 (AI Native Software Development)
+**Phase**: Quality Assurance
+**Proficiency Level**: B1-B2 (Intermediate to Upper Intermediate)
+**Duration**: ~4.5 hours
+
+## Chapter Overview
+
+This chapter teaches the **thinking and methodology** behind agent evaluations (evals)—the systematic approach to measuring AI agent reasoning quality. Unlike TDD (Chapter 46) which tests code correctness with deterministic PASS/FAIL outcomes, evals measure probabilistic reasoning quality with scores.
+
+**Core Thesis** (Andrew Ng): *"One of the biggest predictors for whether someone is able to build agentic workflows really well is whether or not they're able to drive a really disciplined evaluation process."*
+
+## Prerequisites
+
+- **Ch34-36 (SDK chapters)**: Understanding of agent architecture
+- **Ch40 (FastAPI for Agents)**: Task API running example
+- **Ch46 (TDD for Agents)**: Understanding of test-driven development
+
+## Student Skill
+
+Students build the `agent-evals` skill throughout this chapter, starting with L00 and finalizing in L10.
+
+## Lesson Index
+
+| # | Lesson | Duration | Focus |
+|---|--------|----------|-------|
+| L00 | Build Your Evals Skill | 25 min | Skill-First: Create agent-evals skill |
+| L01 | Evals Are Exams for Reasoning | 20 min | TDD vs Evals distinction |
+| L02 | The Two Evaluation Axes | 20 min | Four-quadrant classification |
+| L03 | Designing Eval Datasets | 25 min | Quality over quantity (10-20 cases) |
+| L04 | Building Graders with Binary Criteria | 30 min | Binary yes/no pattern |
+| L05 | LLM-as-Judge Graders | 30 min | LLM evaluation with limitations |
+| L06 | Systematic Error Analysis | 30 min | Spreadsheet-based counting |
+| L07 | Component vs End-to-End Evals | 25 min | Decision framework |
+| L08 | Regression Protection | 25 min | Eval-on-every-change |
+| L09 | The Complete Quality Loop | 30 min | Build-Evaluate-Analyze-Improve |
+| L10 | Finalize Your Evals Skill | 20 min | Skill validation |
+
+## Key Concepts
+
+- **Evals as Exams**: Testing reasoning quality, not code correctness
+- **Two Axes**: Objective/Subjective × Ground Truth availability
+- **Binary Criteria**: 5 yes/no checks → 0-5 score (more reliable than 1-5 scales)
+- **Error Analysis**: Systematic counting replaces gut feeling
+- **The Quality Loop**: Build → Evaluate → Analyze → Improve → Repeat
+
+## Running Example
+
+Task API agent from Ch40, evaluated for:
+- Routing decisions (create vs update vs query)
+- Tool selection correctness
+- Output format compliance
+- Error handling quality
+
+## Learning Outcomes
+
+By chapter end, students can:
+1. Distinguish evals from TDD based on determinism and outcomes
+2. Design eval datasets with typical, edge, and error cases
+3. Create graders using binary criteria
+4. Perform systematic error analysis
+5. Build regression protection workflows
+6. Apply the complete quality loop
+
+## Framework-Agnostic
+
+These concepts apply to any SDK (OpenAI, Claude, Google ADK, LangChain). The thinking is portable.

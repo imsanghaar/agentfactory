@@ -1,0 +1,7 @@
+{
+  "name": "chapter-manifest-plugin",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/docusaurus/chapter-manifest-plugin",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:docusaurus"]
+}

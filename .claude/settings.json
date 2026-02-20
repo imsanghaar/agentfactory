@@ -1,0 +1,287 @@
+{
+  "disabledMcpjsonServers": [],
+  "enableAllProjectMcpServers": true,
+  "alwaysThinkingEnabled": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/advanced/session-context-loader.sh'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Setup": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-setup.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-prompts.sh'",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/team/skill-suggest.sh'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/team/skill-activation.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guardrails/block-main-branch.sh'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guardrails/protect-files.sh'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guardrails/block-destructive.sh'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guardrails/verify-infra-context.sh'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-skills.sh'",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guardrails/enforce-skill-governance.sh'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-tasks.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-permissions.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/automation/auto-format.sh'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-file-changes.sh'",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/advanced/code-review-gate.sh'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-reads.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-skills-end.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-tasks-end.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "WebSearch|WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-web.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-mcp.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-failures.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-subagent-start.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-subagent-stop.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto|manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observability/track-compact.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/team/notify-completion.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/team/notify-permission.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'source \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/advanced/team-handoff.sh'",
+            "timeout": 15,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

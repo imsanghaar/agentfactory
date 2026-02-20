@@ -1,0 +1,372 @@
+---
+sidebar_position: 3
+title: "Development Patterns — Vibe Coding vs. Spec-Driven Development"
+chapter: 2
+lesson: 3
+duration_minutes: 25
+
+# HIDDEN SKILLS METADATA
+skills:
+  - name: "Distinguishing Development Patterns"
+    proficiency_level: "A1"
+    category: "Conceptual"
+    bloom_level: "Understand"
+    digcomp_area: "Information Literacy"
+    measurable_at_this_level: "Student can identify differences between vibe coding and spec-driven development approaches"
+
+  - name: "Understanding Vibe Coding Tradeoffs"
+    proficiency_level: "A2"
+    category: "Conceptual"
+    bloom_level: "Understand"
+    digcomp_area: "Problem-Solving"
+    measurable_at_this_level: "Student can explain when vibe coding works well and where it breaks down"
+
+  - name: "Recognizing Specification-First Value"
+    proficiency_level: "A2"
+    category: "Soft"
+    bloom_level: "Understand"
+    digcomp_area: "Communication & Collaboration"
+    measurable_at_this_level: "Student can articulate why specifications matter for AI-era development"
+
+learning_objectives:
+  - objective: "Identify two fundamental development patterns: vibe coding (intuition-led) and spec-driven (specification-led)"
+    proficiency_level: "A1"
+    bloom_level: "Understand"
+    assessment_method: "Comparison of characteristics and contexts for each approach"
+
+  - objective: "Understand tradeoffs of vibe coding: when it excels (learning, exploration, solo work) and where it fails (scaling, teams, AI)"
+    proficiency_level: "A2"
+    bloom_level: "Understand"
+    assessment_method: "Explanation of specific scenarios where vibe coding breaks down"
+
+  - objective: "Evaluate why specification-first development is essential with AI tools"
+    proficiency_level: "A2"
+    bloom_level: "Understand"
+    assessment_method: "Reflection on how AI needs clarity and specifications to be effective"
+
+cognitive_load:
+  new_concepts: 4
+  assessment: "4 new concepts (vibe coding, spec-driven, pattern tradeoffs, AI compatibility) within A1-A2 limit ✓"
+
+differentiation:
+  extension_for_advanced: "Research code quality metrics comparing vibe vs. spec-driven; analyze refactoring costs"
+  remedial_for_struggling: "Use one simple example (personal project vs. team project); build understanding incrementally"
+---
+
+# Development Patterns — Vibe Coding vs. Spec-Driven Development
+
+**Lesson Video:**
+
+<iframe width="100%" height="400" src="https://www.youtube.com/embed/JyPatZzRNZ8" title="Development Patterns in Transition" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+You've probably experienced this: you start a project and move *fast*. No specs, no planning, just coding. The first feature ships in hours. It works. You ship it.
+
+Then week two arrives. You need to add a related feature, but the code resists. The structure doesn't accommodate it. You discover edge cases weren't tested. A teammate asks, "Why did you do it this way?" You don't have a good answer—it just felt right at the time.
+
+By week three, you're slower than if you'd spent the first two days planning.
+
+This reveals something important: **there are fundamentally different ways of building software, and they have different tradeoffs.** Neither is universally "right" or "wrong." But understanding when each one works—and why—is critical for using AI effectively.
+
+## Vibe Coding: Intuition-Led Development
+
+**Vibe coding** is development driven by intuition, exploration, and immediate feedback. You write code, run it, see what happens, and adjust. There's no formal specification. Requirements emerge as you explore.
+
+### Why Vibe Coding Works
+
+Vibe coding is **genuinely excellent** for certain contexts:
+
+- **Learning**: When you're new to a language or framework, vibe coding gives immediate feedback. You try something, it fails, you learn why. This tight feedback loop is one of the best ways to internalize how something works.
+
+- **Exploration and Discovery**: When you're prototyping a new idea or investigating a technical question, rigid planning can slow you down. "What if I try this?" is often faster than "Let me document this first."
+
+- **Low Stakes Solo Work**: If you're building a personal tool or learning project, the cost of rework is low. You can afford to refactor.
+
+- **Creative Flow**: Some of the best code comes from a state of creative focus where you're responding to the problem intuitively.
+
+Many experienced developers will tell you their best work came from vibe coding sessions. There's real value there.
+
+### Where Vibe Coding Breaks Down
+
+Vibe coding has **predictable failure modes** that show up when stakes increase:
+
+- **Ambiguous Requirements**: Without a written spec, different team members have different mental models. "I thought it would work like X" versus "I built it to work like Y" becomes a recurring problem.
+
+- **Missing Tests**: Vibe coding naturally skips tests. You test manually, which works until you don't test that one edge case—the one that breaks in production at 3 AM.
+
+- **Architecture Drift**: The code evolves organically, which is fine until the structure no longer supports new features. Adding the third variant reveals the code wasn't designed for extensibility.
+
+These aren't design flaws—they're natural properties of exploration-first development. They don't matter much when stakes are low. They matter enormously when you're shipping to production or working in a team.
+
+#### 💬 AI Colearning Prompt
+
+> **Explore your own experiences**: Think about a time you moved fast on a project and hit unexpected problems later. What would have been different if you'd spent 30 minutes planning first? Share this scenario with your AI partner and ask: "What's the pattern here? When does speed-first become speed-then-stuck?" Let your AI help you discover the inflection point through your own experiences.
+
+## Spec-Driven Development: Method-Led Development
+
+**Spec-Driven Development (SDD)** inverts the order. You write a specification first, defining what you're building, why, and how success looks. Then you write tests that encode that specification. Only then do you implement the feature.
+
+![Spec-driven development Workflow](https://pub-80f166e40b854371ac7b05053b435162.r2.dev/books/ai-native-dev/static/images/part-1/chapter-2/l4-sdd-flow.png)
+
+### The 7-Step SDD Workflow
+
+The complete workflow integrates Test-Driven Development (TDD) and knowledge capture:
+
+1. **Specify**: Write a clear specification. What should this feature do? What are edge cases? How does it interact with the rest of the system?
+
+2. **Plan**: Break the specification into implementable tasks. Identify dependencies, sequencing, and resources needed.
+
+3. **Tasks**: Create a checklist of concrete, testable tasks with acceptance criteria.
+
+4. **Implement (Red-Green)**:
+   - **Red**: Write tests that encode the spec. They fail because the feature doesn't exist yet.
+   - **Green**: Write code to pass the tests. Your code's job is clear: satisfy the spec and pass the tests.
+
+5. **Refactor**: Clean up the implementation while keeping tests passing. Improve structure, clarity, and performance.
+
+6. **Explain**: Document decisions, trade-offs, and reasoning. Future maintainers (including you) will thank you.
+
+7. **Record/Share**: Capture decisions in Architecture Decision Records (ADRs). Share work via Pull Requests with context.
+
+**Note**: We'll formalize this methodology in a dedicated part later in the book. For now, understand the principles.
+
+#### 🎓 Expert Insight
+
+> **Why this matters**: We're not teaching you SDD because it's "best practice." We're teaching it because **in the AI era, specification-writing IS the primary skill**. Remember the constitutional principle: **"Specs are the new syntax."** You're learning to articulate intent so clearly that AI can execute flawlessly. The 7-step workflow trains this skill systematically—thinking before typing, validating before shipping. This is the foundation of AI-native development.
+
+### Why SDD Works
+
+- **Predictable Delivery**: Because requirements are clear upfront, estimates are more accurate. Surprises are fewer.
+
+- **Sustainable Velocity**: As the codebase grows, SDD codebases remain navigable. New features don't require heroic refactoring.
+
+- **Team Collaboration**: A written spec means everyone has the same understanding. Code reviews focus on implementation quality, not debating what should be built.
+
+- **Maintainability**: Someone joining the team six months later can read the spec and tests and understand not just *what* the code does, but *why*.
+
+- **Confident Refactoring**: With tests in place, you can refactor internal structure without fear.
+
+## A Concrete Comparison: Team A vs. Team B
+
+Let's make this concrete. Two teams building the same feature: **add a `/summarize` endpoint that takes a PDF file, extracts its content, and returns a summary.**
+
+### Team A: Vibe Coding
+
+**Week 1, Tuesday morning**: A developer starts coding. No spec. "I'll figure it out as I go."
+
+- **Tuesday afternoon**: The endpoint works locally. Reads PDF, extracts text, sends it to summarization API, returns result. Manual testing looks good. Shipped.
+- **Total time: 10 hours**
+
+The code is fast. Velocity looks amazing.
+
+**Wednesday morning in staging**: The PDF parsing library behaves differently on the staging machine. The code crashes on certain PDFs. The developer didn't test those cases.
+
+**Wednesday afternoon**: Fix is rolled out, but it's patchy. The architecture doesn't accommodate variations well.
+
+**Friday**: A teammate asks, "Can we add Word document support?" The developer realizes the PDF extraction is tightly coupled to the summarization logic. Adding Word means rewriting half of it.
+
+**Monday of week 2**: The team decides `/summarize` needs to be rebuilt from scratch. They allocate three days for redesign.
+
+**Total cost: 10 hours + 24 hours rework = 34 hours. Plus damage to team confidence.**
+
+### Team B: Spec-Driven Development
+
+**Week 1, Tuesday morning**: Before coding, the team writes a specification:
+
+> "The `/summarize` endpoint accepts multipart form data containing a document file (initially PDF, designed for future extensions). It extracts content, summarizes using external API, and returns structured JSON. Edge cases: files > 100MB, corrupted PDFs, missing API key, rate limiting. Design: document parser abstraction allowing multiple format handlers."
+
+- **Tuesday, 2 hours**: Specification complete. Everyone agrees on what "done" looks like.
+- **Tuesday-Wednesday, 3 hours**: Write comprehensive tests. Tests validate the spec—large files, corrupted PDFs, API down scenarios. Tests fail because the feature doesn't exist yet.
+- **Wednesday-Thursday, 4 hours**: Implement the feature to pass tests. Developer knows exactly what to build.
+- **Thursday afternoon, 1 hour**: Code review. Spec and tests make review focused.
+- **Total time: 10 hours. Feature ships reliably. No staging surprises.**
+
+**Friday**: Teammate asks, "Can we add Word support?" The developer looks at the spec and code. Parser is abstracted. Adding Word means writing a Word parser handler. Existing code doesn't change.
+
+- **Friday afternoon, 2 hours**: Word support added, tested, shipped.
+
+**Total cost: 10 hours initial + 2 hours extension = 12 hours. Sustainable. Confident.**
+
+<!-- VISUAL ASSET 1: Team A vs Team B Development Timeline Comparison
+
+IMAGE GENERATION PROMPT:
+
+Professional timeline comparison showing vibe coding rework pattern versus spec-driven sustainable development.
+
+Layout: Horizontal dual-timeline, 1792x1024px (16:9 aspect ratio).
+- Background: White (#FFFFFF)
+- Top timeline (Team A - Vibe Coding): 800px wide, Light Red tint (#FFF5F5)
+- Bottom timeline (Team B - Spec-Driven): 800px wide, Light Green tint (#F5FFF5)
+- Vertical time axis on left: Days labeled (Day 1-7)
+- 64px padding around edges, 48px gap between timelines
+
+Typography:
+- Title: "Development Pattern Comparison" - 48pt Roboto Bold, Dark Gray (#1A1A1A), centered top
+- Team labels: "Team A: Vibe Coding" / "Team B: Spec-Driven" - 28pt Roboto Bold
+- Day markers: 16pt Roboto Medium, Medium Gray (#666666)
+- Activity text: 14pt Roboto Regular, Dark Gray (#333333)
+- Time badges: 12pt Roboto Bold White on colored background
+- Outcome text: 16pt Roboto Medium
+
+Color Palette:
+- Background: White (#FFFFFF)
+- Team A background: Light Red (#FFF5F5)
+- Team A activities: Red (#DC3545)
+- Team A rework: Dark Red (#A71D2A)
+- Team B background: Light Green (#F5FFF5)
+- Team B activities: Green (#28A745)
+- Team B extension: Dark Green (#1E7E34)
+- Text primary: Dark Gray (#1A1A1A)
+- Text secondary: #333333
+- Text tertiary: Medium Gray (#666666)
+
+Visual Elements:
+- Timeline bars: 8px height, rounded ends
+- Activity blocks: Rounded rectangles with 8px radius
+- Time badges: Pill-shaped, 6px radius
+- Connecting arrows showing rework (Team A): Curved back arrows in Red
+- Success checkmark (Team B): Green ✓ icon, 24px
+- Warning icon (Team A): Red ⚠ icon, 24px
+- Shadows on activity blocks: 0px 2px 6px rgba(0,0,0,0.08)
+
+Content:
+Team A Timeline (Vibe Coding):
+  Day 1: "Start coding" → "10h" badge → Red activity bar
+  Day 2: "Ship to staging" → "Crashes on certain PDFs" → Red ⚠ icon
+  Day 3: "Patchy fix" → "Architecture resists changes"
+  Day 5: "Request for Word support" → "Requires major refactor"
+  Day 7-9: "Rebuild from scratch" → "24h" badge → Dark Red activity bar
+  Outcome box: "Total: 34 hours + team friction" → Red background
+
+Team B Timeline (Spec-Driven):
+  Day 1: "Write spec" → "2h" badge → Green activity bar
+  Day 1-2: "Write tests" → "3h" badge → Green activity bar
+  Day 2-3: "Implement feature" → "4h" badge → Green activity bar
+  Day 3: "Code review" → "1h" badge → Green activity bar
+  Day 3: "Ship reliably" → Green ✓ icon
+  Day 5: "Add Word support" → "2h" badge → Dark Green activity bar
+  Outcome box: "Total: 12 hours, sustainable" → Green background
+
+Annotations:
+- Arrow from Team A Day 2 to Day 7 labeled: "Rework cost: 24h"
+- Badge on Team B Day 1: "Planning upfront"
+- Badge on Team B Day 5: "Extensible design pays off"
+
+Style Reference: Project management timeline (Linear, Asana, Notion), clean Gantt-style comparison
+
+Quality: professional, high-quality, publication-ready, clean, modern, editorial
+
+Dimensions: 16:9 (1792x1024px)
+
+Filename: team-comparison-vibe-vs-spec-timeline.png
+Alt Text: Dual-timeline comparison showing Team A using vibe coding completes initial work in 10 hours but requires 24 hours of rework when requirements change (total 34 hours), while Team B using spec-driven development invests 10 hours upfront and adds extensions in 2 hours with no rework (total 12 hours), demonstrating sustainable velocity.
+-->
+
+![Timeline comparison of vibe coding vs spec-driven development showing total time and rework costs](https://pub-80f166e40b854371ac7b05053b435162.r2.dev/books/ai-native-dev/static/images/part-1/chapter-2/team-comparison-vibe-vs-spec-timeline.png)
+
+#### 🤝 Practice Exercise
+
+> **Ask your AI**: "I want to build a simple task manager that saves tasks to a file. Before we write any code, help me create a mini-specification. Ask me clarifying questions: What features does it need? What could go wrong? What edge cases should I consider? Then guide me through writing a 1-paragraph spec that covers the essentials."
+
+**What you're practicing**: Specification-first thinking. Notice how planning BEFORE coding makes requirements clearer and implementation smoother.
+
+## When Each Approach Fits
+
+| **Context** | **Vibe Coding** | **Spec-Driven Development** |
+|---|---|---|
+| **Learning a new technology** | Excellent | Unnecessary friction |
+| **Shipping to production** | High risk | Appropriate |
+| **Solo project, low stakes** | Perfect | Overhead |
+| **Team feature, production code** | Coordination costs | Essential |
+| **Exploration/prototyping** | Ideal | Premature structure |
+| **Extended maintenance** | Knowledge silos | Clarity and velocity |
+
+**The key insight**: Vibe coding is powerful. SDD is powerful. They're designed for different contexts. Using vibe coding for production features creates the "fast week one, slow week two" pattern. Using SDD for learning creates unnecessary ceremony.
+
+## Why This Matters for AI Development
+
+Here's where AI changes the stakes: **AI is an amplifier of whatever practice you bring to it.**
+
+When you vibe code with Claude or ChatGPT, the AI generates code quickly. It feels amazing—you ask for something, you get working code in seconds. But you're amplifying every weakness of vibe coding. The AI won't write a spec you didn't ask for. It won't write tests you didn't request. You ship fast and encounter the same staging surprises Team A did—except now there's AI-generated code no one fully understands.
+
+Conversely, when you use SDD with AI, the AI becomes a force multiplier for the things that matter. You ask it to help you write a clear spec. You ask it to generate tests from your spec. You ask it to implement against those tests. The AI handles the mechanical parts while you handle the judgment—is the spec right? Are edge cases covered?
+
+**The discipline becomes MORE critical with AI, not less.** AI makes it easier to code fast. That makes vibe coding more tempting. And that's precisely when you need discipline most.
+
+#### 🎓 Expert Insight
+
+> Specs are the new syntax. In traditional programming, your value was typing correct syntax fast. In AI-native development, your value is articulating intent clearly. Think of it this way: You're not learning to code faster. You're learning to think more clearly so AI can execute flawlessly. Specification quality directly determines output quality. Master specs, master AI-native development.
+
+---
+
+:::note Skeptic's Corner: "Isn't SDD just bureaucracy?"
+
+**Fair pushback. Let's be specific.**
+
+SDD *can* become bureaucracy if applied dogmatically. Writing 10-page specifications for a 20-line function is overhead. The question is: what problem are you solving?
+
+**When SDD is overhead:**
+- Solo learning projects where rework costs nothing
+- Prototypes you'll throw away
+- Exploration where requirements are genuinely unknown
+
+**When SDD prevents friction:**
+- Production features serving real users
+- Team projects with multiple contributors
+- Code that will be maintained for months/years
+- Regulated environments requiring audit trails
+
+The difference isn't "bureaucracy vs. freedom." It's "clarity upfront vs. surprises later." SDD trades a little time today for a lot of time tomorrow. That trade only makes sense when tomorrow matters.
+
+Think of it like blueprints for construction. Building a treehouse in your backyard? Sketch on a napkin. Building an office tower? You need blueprints. The discipline isn't bureaucracy—it's appropriate for the stakes.
+
+:::
+
+---
+
+## Try With AI
+
+Use your AI companion tool set up (e.g., ChatGPT web, Claude Code, Gemini CLI), you may use that instead—the prompts are the same.
+
+### Prompt 1: Discover Patterns Through Your Experience
+```
+Let's explore development approaches through MY experiences. I'll describe a project where I moved fast (vibe coding) and one where I planned carefully (or wish I had). For each, ask me: What worked? What broke? When did I feel stuck? Then help me discover: What's the underlying pattern that determines when each approach works? Don't just explain—help me DISCOVER the tradeoffs through reflecting on my own projects.
+```
+
+**What you're learning**: Pattern recognition through reflection—your AI helps you extract principles from your experiences, not just memorize rules.
+
+### Prompt 2: Co-Create a Mini-Spec (Bidirectional Learning)
+```
+I want to build [describe your project idea]. Before we write any code, let's co-create a mini-specification together.
+
+**Part 1**: Start by suggesting 3-4 edge cases or failure modes I might not have considered. Teach me what experienced developers think about when spec-writing.
+
+**Part 2**: Now I'll tell you about MY specific constraints and context [describe your situation: time limits, technical constraints, user needs]. Adjust your edge case suggestions based on what I just taught you about my situation.
+
+**Part 3**: Let's iterate on the spec structure together—you suggest sections, I refine based on what matters for my project, we converge on a 1-page spec that captures both your experience and my context.
+```
+
+**What you're learning**: Notice how this interaction works both ways—your AI suggests patterns you didn't know, then learns your constraints and adapts. You're not just receiving a spec template; you're building it together through iteration. This is what AI collaboration actually looks like.
+
+### Prompt 3: Debug Together Through Failure Analysis
+```
+Here's a real scenario I faced (or a hypothetical): I built something quickly with AI help, it worked on my machine, but broke when [shared with others / deployed / scaled up]. Walk me through diagnosing this together: Ask me questions about what I did (or didn't do), help me discover what likely went wrong, then co-create a "pre-flight checklist" I can use next time. Make it specific to MY project, not generic advice.
+```
+
+**What you're learning**: Root cause analysis through dialogue—your AI teaches you to debug by asking questions, not just providing answers.
+
+### Prompt 4: Build Decision Framework Together (Iterative Convergence)
+```
+I need a simple decision framework: Given a project, how do I choose between "explore fast" and "plan first"?
+
+**Part 1**: Create a first-draft framework based on standard software engineering wisdom.
+
+**Part 2**: Now I'll critique your framework based on MY reality [tell AI what's unrealistic, what you'd never actually use, what's missing for your situation]. Be honest—if something won't work for you, say so.
+
+**Part 3**: Revise the framework based on my feedback. Then I'll test it on 2-3 of my real past projects and tell you where it succeeds or fails.
+
+**Part 4**: Final iteration—we converge on a framework that combines your engineering knowledge with my practical constraints. The result should be something I'll actually use, not just "technically correct."
+```
+
+**What you're learning**: Notice the progression—AI provides expertise, you provide reality checks, you both iterate toward something better than either had initially. Neither of you "owns" the final framework—it emerged from collaboration. This is how you build with AI: convergence through iteration, not passive acceptance.
+
+

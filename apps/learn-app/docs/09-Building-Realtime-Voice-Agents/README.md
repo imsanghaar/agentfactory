@@ -1,0 +1,41 @@
+---
+sidebar_position: 9
+title: "Part 9: Building Realtime Voice Agents"
+---
+
+# Part 9: Building Realtime Voice Agents
+
+Parts 6-9 gave you agent backends, cloud deployment, and interactive TypeScript experiences. Part 10 adds realtime voice—the natural interface for Digital FTEs. You'll build agents that listen, speak, interrupt gracefully, and run on production voice stacks.
+
+---
+
+## Goals
+
+By completing Part 10, you will:
+
+- **Understand the voice stack**: latency budgets, STT/LLM/TTS pipelines, and when to use frameworks vs. raw APIs
+- **Ship with LiveKit Agents** for enterprise-grade realtime voice, SIP, and MCP integration
+- **Build with Pipecat** for vendor-neutral, plugin-based pipelines
+- **Use direct APIs** (OpenAI Realtime, Gemini Live) when you need low-level control
+- **Integrate real channels** through WebRTC, browser audio capture, and telephony
+- **Deliver a production voice agent** deployed on Kubernetes with monitoring and cost controls
+
+---
+
+## Chapter Progression
+
+Seven chapters move from concepts to a deployed voice product:
+
+- **Voice Foundations (79)**: Landscape, latency targets, and architecture choices.
+- **Frameworks First (80-81)**: LiveKit Agents for enterprise deployments; Pipecat for flexible pipelines.
+- **Direct Speech APIs (82-83)**: OpenAI Realtime and Gemini Live for raw speech-to-speech and multimodal voice.
+- **Integration (84)**: Browser capture, WebRTC, SIP/Twilio/Telnyx, and VAD.
+- **Capstone (85)**: Production voice agent with multimodal support, deployment, and cost optimization.
+
+**Why this order?** Build mental models, master frameworks, drop to raw APIs for edge cases, integrate real channels, then ship the production capstone.
+
+---
+
+## Outcome & Method
+
+The capstone is a sellable voice-enabled Digital FTE: browser and phone interfaces, multimodal context, interruption support, and Kubernetes deployment. As in earlier parts, you follow a spec-driven workflow—draft requirements, let AI generate scaffolds, and validate against latency, quality, and cost targets.

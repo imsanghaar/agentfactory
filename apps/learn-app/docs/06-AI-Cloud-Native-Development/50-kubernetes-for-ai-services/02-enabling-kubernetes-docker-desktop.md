@@ -1,0 +1,355 @@
+---
+sidebar_position: 2
+chapter: 50
+lesson: 2
+duration_minutes: 15
+title: "Enabling Kubernetes (Docker Desktop)"
+proficiency_level: B1
+teaching_stage: 1
+stage_name: "Manual Foundation"
+stage_description: "Enable Kubernetes with a checkbox - no VMs or complex setup"
+cognitive_load:
+  concepts_count: 4
+  scaffolding_level: "Low"
+learning_objectives:
+  - id: LO1
+    description: "Enable Kubernetes in Docker Desktop settings"
+    bloom_level: "Apply"
+  - id: LO2
+    description: "Verify cluster health with kubectl commands"
+    bloom_level: "Apply"
+  - id: LO3
+    description: "Understand kubectl context and kubeconfig"
+    bloom_level: "Understand"
+  - id: LO4
+    description: "Confirm the docker-desktop context is active"
+    bloom_level: "Apply"
+digcomp_mapping:
+  - objective_id: LO1
+    competency_area: "3. Digital Content Creation"
+    competency: "3.4 Programming"
+  - objective_id: LO2
+    competency_area: "3. Digital Content Creation"
+    competency: "3.4 Programming"
+  - objective_id: LO3
+    competency_area: "5. Problem Solving"
+    competency: "5.3 Using digital tools to solve problems"
+  - objective_id: LO4
+    competency_area: "1. Information and Data Literacy"
+    competency: "1.2 Understanding digital concepts and terminology"
+---
+
+# Enabling Kubernetes (Docker Desktop)
+
+You already have Docker Desktop from Chapter 49. Here's the good news: Kubernetes is built in. No separate installation, no virtual machines, no complex setup. Just a checkbox.
+
+By the end of this lesson, you'll have a working Kubernetes cluster running on your laptop—the same API and concepts used in production cloud deployments—ready for your first Pod deployment.
+
+---
+
+## Docker Desktop Kubernetes vs Cloud Kubernetes
+
+| Feature | Docker Desktop | Cloud Kubernetes (GKE, EKS, AKS) |
+|---------|----------------|----------------------------------|
+| **Location** | Your laptop | Cloud data center |
+| **Nodes** | Single node | Multiple nodes |
+| **Cost** | Free | Cloud compute bills |
+| **Setup** | One checkbox | Cloud provider configuration |
+| **API** | Identical Kubernetes API | Same API |
+| **kubectl** | Same commands | Same commands |
+
+**Key insight**: Docker Desktop Kubernetes is NOT a toy. It's a real Kubernetes cluster with the same API as production. Everything you learn here transfers directly to cloud deployments.
+
+---
+
+## Enable Kubernetes
+
+### Step 1: Open Docker Desktop Settings
+
+::::os-tabs
+
+::macos
+Click the Docker icon in your menu bar → **Settings** (or press `⌘,`)
+
+::windows
+Right-click the Docker icon in the system tray → **Settings**
+
+::linux
+Click the Docker Desktop icon → **Settings**
+
+::::
+
+### Step 2: Enable Kubernetes
+
+1. In Settings, click **Kubernetes** in the left sidebar
+2. Check **Enable Kubernetes**
+3. Click **Apply & Restart**
+
+Docker Desktop will download Kubernetes components and start the cluster. This takes 2-3 minutes on first enable.
+
+**What you'll see**:
+- A progress indicator while Kubernetes initializes
+- Docker Desktop restarts
+- A green "Kubernetes running" indicator in the bottom-left corner
+
+### Step 3: Verify Kubernetes is Running
+
+Open a terminal and run:
+
+```bash
+kubectl version
+```
+
+**Output**:
+```
+Client Version: v1.28.2
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Server Version: v1.28.2
+```
+
+Both Client and Server versions should display. If Server Version is missing, Kubernetes isn't running yet—wait for the green indicator in Docker Desktop.
+
+---
+
+## Verify Your Cluster
+
+Check that your cluster is healthy:
+
+```bash
+kubectl cluster-info
+```
+
+**Output**:
+```
+Kubernetes control plane is running at https://kubernetes.docker.internal:6443
+CoreDNS is running at https://kubernetes.docker.internal:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+```
+
+This shows:
+- **Control plane**: API server is running
+- **CoreDNS**: Service discovery is working (pods can find each other by name)
+
+Check the nodes in your cluster:
+
+```bash
+kubectl get nodes
+```
+
+**Output**:
+```
+NAME             STATUS   ROLES           AGE   VERSION
+docker-desktop   Ready    control-plane   5m    v1.28.2
+```
+
+This shows:
+- **NAME**: Your single node is called "docker-desktop"
+- **STATUS**: Ready (healthy, accepting workloads)
+- **ROLES**: control-plane (runs both control plane and worker responsibilities)
+- **VERSION**: Kubernetes v1.28.2
+
+Your Kubernetes cluster is running and ready.
+
+---
+
+## Understanding kubectl Context
+
+kubectl needs to know which Kubernetes cluster to talk to. This is managed through **contexts**.
+
+### What is a Context?
+
+A context combines:
+- **Cluster**: Which Kubernetes cluster to talk to
+- **User**: What credentials to use
+- **Namespace**: Which namespace to use (default is `default`)
+
+### Check Your Current Context
+
+```bash
+kubectl config current-context
+```
+
+**Output**:
+```
+docker-desktop
+```
+
+This confirms kubectl is pointing to your Docker Desktop Kubernetes cluster.
+
+### View All Contexts
+
+```bash
+kubectl config get-contexts
+```
+
+**Output**:
+```
+CURRENT   NAME             CLUSTER          AUTHINFO         NAMESPACE
+*         docker-desktop   docker-desktop   docker-desktop
+```
+
+The `*` marks your current context. If you later work with cloud clusters (GKE, EKS, AKS), you'll see multiple contexts here and can switch between them:
+
+```bash
+kubectl config use-context docker-desktop
+```
+
+### Where is This Stored?
+
+Context configuration lives in `~/.kube/config`:
+
+```bash
+cat ~/.kube/config
+```
+
+**Output** (partial):
+```yaml
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1...
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+contexts:
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-desktop
+current-context: docker-desktop
+kind: Config
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: LS0tLS1...
+    client-key-data: LS0tLS1...
+```
+
+Docker Desktop automatically configures this when you enable Kubernetes.
+
+---
+
+## Quick Reference: Cluster Management
+
+### Check Kubernetes Status
+
+Look for the green "Kubernetes running" indicator in Docker Desktop's bottom-left corner. Or run:
+
+```bash
+kubectl get nodes
+```
+
+### Restart Kubernetes
+
+If Kubernetes becomes unresponsive:
+1. Docker Desktop Settings → Kubernetes
+2. Click **Reset Kubernetes Cluster**
+
+This resets the cluster to a clean state (removes all deployments).
+
+### Disable Kubernetes
+
+To free up resources when not using Kubernetes:
+1. Docker Desktop Settings → Kubernetes
+2. Uncheck **Enable Kubernetes**
+3. Click **Apply & Restart**
+
+Re-enable anytime with the same checkbox.
+
+### Resource Allocation
+
+Docker Desktop shares resources with Kubernetes. Adjust in:
+- Docker Desktop Settings → Resources
+- Recommended: At least 4GB memory for Kubernetes workloads
+
+---
+
+## What You've Accomplished
+
+You now have:
+
+- ✅ Kubernetes enabled in Docker Desktop
+- ✅ kubectl configured and communicating with your cluster
+- ✅ A working single-node Kubernetes cluster (same API as production)
+- ✅ Understanding of kubectl contexts
+
+No VMs. No drivers. No hypervisors. Just a checkbox.
+
+Your local Kubernetes cluster is ready. Next lesson, you'll deploy your first Pod to this cluster.
+
+---
+
+## Try With AI
+
+Now that your cluster is running, explore it with AI assistance.
+
+### Prompt 1: Cluster Architecture
+
+```
+I just enabled Kubernetes in Docker Desktop. When I run 'kubectl get nodes',
+I see 'docker-desktop' with role 'control-plane'.
+
+In the previous lesson, you explained that production Kubernetes has separate
+control plane and worker nodes. How does Docker Desktop handle this with a
+single node? What components are running?
+```
+
+**What you're learning**: How Docker Desktop combines control plane and worker responsibilities on a single node, and what Kubernetes components are actually running.
+
+### Prompt 2: Context Management
+
+```
+I want to understand kubectl contexts better. I ran 'kubectl config get-contexts'
+and see 'docker-desktop'.
+
+If I later add a cloud cluster (like GKE), how would I:
+1. Add the new context?
+2. Switch between local and cloud clusters?
+3. Avoid accidentally deploying to production?
+```
+
+**What you're learning**: How professionals manage multiple Kubernetes environments safely, preventing accidental production deployments.
+
+### Prompt 3: Resource Planning
+
+```
+I'm about to deploy AI agents to my Docker Desktop Kubernetes cluster.
+My laptop has 16GB RAM and Docker Desktop is allocated 8GB.
+
+How much of that 8GB is available for my workloads? What happens if my
+pods request more memory than available? How should I plan resource
+requests for AI workloads?
+```
+
+**What you're learning**: Resource management fundamentals—the relationship between node capacity, allocatable resources, and pod requests/limits that you'll configure in later lessons.
+
+---
+
+## Reflect on Your Skill
+
+You built a `kubernetes-deployment` skill in Lesson 0. Test and improve it based on what you learned.
+
+### Test Your Skill
+
+```
+Using my kubernetes-deployment skill, verify Kubernetes cluster health.
+Does my skill include commands like kubectl cluster-info and kubectl get nodes?
+```
+
+### Identify Gaps
+
+Ask yourself:
+- Did my skill include kubectl context management?
+- Did it explain how to verify metrics-server and cluster components are running?
+- Did it cover the kubeconfig file and context switching?
+
+### Improve Your Skill
+
+If you found gaps:
+
+```
+My kubernetes-deployment skill is missing cluster verification and context management commands.
+Update it to include kubectl cluster-info, kubectl get nodes, kubectl config current-context, and kubeconfig management.
+```
+
+---

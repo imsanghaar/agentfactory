@@ -1,0 +1,41 @@
+---
+sidebar_position: 68
+title: "Chapter 68: Alignment & Safety"
+description: "Design safety policies, refusal behavior, and evaluators for tuned models"
+---
+
+# Chapter 68: Alignment & Safety
+
+Keep models safe and compliant. This chapter builds an `alignment-safety` skill to design safety policies, refusals, and evaluations that pair with your tuned models.
+
+---
+
+## Goals
+
+- Define safety policies and refusal behaviors for your domain
+- Build safety/alignment datasets and tests
+- Apply safety tuning or policy stacks
+- Evaluate with safety-specific metrics and red-team checks
+- Capture patterns in a reusable alignment skill
+
+---
+
+## Lesson Progression
+
+- Build the alignment-safety skill
+- Safety policies and refusal design
+- Safety data creation and tuning
+- Safety evaluation and red teaming
+- Capstone: safety-hardened Task API model; finalize the skill
+
+---
+
+## Outcome & Method
+
+You finish with safety policies and tests applied to your tuned model plus a reusable alignment skill.
+
+---
+
+## Prerequisites
+
+- Chapters 63-67 (data through merging)
