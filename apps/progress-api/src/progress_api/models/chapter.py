@@ -1,8 +1,8 @@
 """Chapter and ChapterAlias models."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
-from sqlmodel import Column, DateTime, Field, SQLModel, text
+from sqlmodel import Column, DateTime, Field, SQLModel, func
 
 
 class Chapter(SQLModel, table=True):
@@ -13,7 +13,11 @@ class Chapter(SQLModel, table=True):
     part_slug: str | None = None
     is_active: bool = Field(default=True)
     created_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: datetime.now(timezone.utc),
+        )
     )
 
 

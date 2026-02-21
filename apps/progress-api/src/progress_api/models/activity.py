@@ -1,9 +1,9 @@
 """ActivityDay model."""
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 import sqlalchemy as sa
-from sqlmodel import Column, DateTime, Field, SQLModel, text
+from sqlmodel import Column, DateTime, Field, SQLModel, func
 
 
 class ActivityDay(SQLModel, table=True):
@@ -14,5 +14,9 @@ class ActivityDay(SQLModel, table=True):
     activity_type: str = Field(sa_column=Column(sa.String, primary_key=True))
     reference_id: str = Field(sa_column=Column(sa.String, primary_key=True))
     created_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: datetime.now(timezone.utc),
+        )
     )

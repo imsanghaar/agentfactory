@@ -1,9 +1,10 @@
 """User model."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
+import sqlalchemy as sa
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 
 
 class User(SQLModel, table=True):
@@ -15,13 +16,22 @@ class User(SQLModel, table=True):
     avatar_url: str | None = None
     show_on_leaderboard: bool = Field(
         default=True,
-        sa_column_kwargs={"server_default": text("true")},
+        sa_column_kwargs={"server_default": sa.sql.true()},
     )
     created_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: datetime.now(timezone.utc),
+        )
     )
     updated_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: datetime.now(timezone.utc),
+            onupdate=lambda: datetime.now(timezone.utc),
+        )
     )
 
     # Relationships for selectinload

@@ -1,10 +1,10 @@
 """QuizAttempt model."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import sqlalchemy as sa
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 
 
 class QuizAttempt(SQLModel, table=True):
@@ -21,7 +21,11 @@ class QuizAttempt(SQLModel, table=True):
     xp_earned: int
     duration_secs: int | None = None
     created_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: datetime.now(timezone.utc),
+        )
     )
 
     # Relationship

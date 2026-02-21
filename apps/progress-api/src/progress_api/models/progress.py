@@ -1,10 +1,11 @@
 """UserProgress model."""
 
 import datetime as dt
+from datetime import timezone
 from typing import Optional
 
 import sqlalchemy as sa
-from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, text
+from sqlmodel import Column, DateTime, Field, Relationship, SQLModel, func
 
 
 class UserProgress(SQLModel, table=True):
@@ -20,7 +21,12 @@ class UserProgress(SQLModel, table=True):
     badge_count: int = Field(default=0)
     last_activity_date: dt.date | None = None
     updated_at: dt.datetime = Field(
-        sa_column=Column(DateTime(timezone=True), server_default=text("NOW()"))
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            default=lambda: dt.datetime.now(timezone.utc),
+            onupdate=lambda: dt.datetime.now(timezone.utc),
+        )
     )
 
     # Relationship
