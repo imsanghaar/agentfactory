@@ -1,8 +1,9 @@
 {
   "buildCommand": "cd apps/learn-app && pnpm install && pnpm run build",
   "outputDirectory": "apps/learn-app/build",
-  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "installCommand": "cd apps/learn-app && pnpm install",
   "framework": null,
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "ignoreCommand": "git diff HEAD^ HEAD -- . ':(prefix)apps/learn-app/' ':(prefix)apps/progress-api/' ':(prefix)apps/sso/' ':(prefix)vercel.json' ':(prefix)package.json' ':(prefix)pnpm-lock.yaml' | grep -q ."
 }

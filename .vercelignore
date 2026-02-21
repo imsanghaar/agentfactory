@@ -1,0 +1,35 @@
+# Python apps
+apps/panaversity-fs-py/
+apps/study-mode-api/
+apps/token-metering-api/
+
+# Docs
+docs/
+
+# Specs
+specs/
+
+# History
+history/
+
+# Archive files
+**/archive/
+**/*.backup*
+**/*.md.backup*
+
+# IDE
+.idea/
+.vscode/
+
+# Test data
+**/test-pkce-playwright.mjs
+**/*.jsonl
+
+# Database files
+**/*.db
+**/*.sqlite
+
+# Lock files (except pnpm)
+**/uv.lock
+**/package-lock.json
+**/yarn.lock
