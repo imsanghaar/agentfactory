@@ -459,15 +459,7 @@ const config: Config = {
           type: "custom-navbarAuth",
           position: "right",
         },
-        {
-          href: SSO_URL,
-          label: "Admin",
-          position: "right",
-          className: "navbar-admin-link",
-          "aria-label": "Open Admin Panel",
-          target: "_blank",
-          rel: "noopener noreferrer",
-        },
+        // Admin link removed for security - access SSO directly at SSO_URL
       ],
     },
     footer: {
