@@ -315,6 +315,32 @@ ul.tabs[role="tablist"] {
     color: oklch(0.85 0.18 77) !important; /* Brighter amber in dark mode */
 }
 
+/* Admin Link - subtle, professional */
+.navbar-admin-link {
+    font-family: var(--font-mono) !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.375rem !important;
+    background-color: oklch(0.93 0.01 264) !important;
+    color: oklch(0.45 0.05 264) !important;
+}
+
+.navbar-admin-link:hover {
+    background-color: oklch(0.85 0.05 264) !important;
+    color: oklch(0.3 0.05 264) !important;
+}
+
+[data-theme='dark'] .navbar-admin-link {
+    background-color: oklch(0.2 0.05 264) !important;
+    color: oklch(0.75 0.1 264) !important;
+}
+
+[data-theme='dark'] .navbar-admin-link:hover {
+    background-color: oklch(0.25 0.05 264) !important;
+    color: oklch(0.85 0.1 264) !important;
+}
+
 /* ============================================
    Animations
    ============================================ */

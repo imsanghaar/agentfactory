@@ -49,7 +49,7 @@ const docsPath = hydrateEnabled ? "../build-source" : "docs";
 const config: Config = {
   title: "Agent Factory",
   tagline: "The Spec-Driven Blueprint for Building and Monetizing Digital FTEs",
-  favicon: "favicon.png",
+  favicon: "new_favicon.png",
 
   // Custom fields accessible via useDocusaurusContext().siteConfig.customFields
   customFields: {
@@ -92,7 +92,7 @@ const config: Config = {
         rel: "icon",
         type: "image/png",
         sizes: "32x32",
-        href: "/favicon.png",
+        href: "/new_favicon.png",
       },
     },
     {
@@ -101,7 +101,7 @@ const config: Config = {
         rel: "icon",
         type: "image/png",
         sizes: "16x16",
-        href: "/favicon-16.png",
+        href: "/new_favicon.png",
       },
     },
     {
@@ -109,7 +109,7 @@ const config: Config = {
       attributes: {
         rel: "apple-touch-icon",
         sizes: "180x180",
-        href: "/apple-touch-icon.png",
+        href: "/new_favicon.png",
       },
     },
     // Font Awesome - non-render-blocking load with preload
@@ -451,6 +451,15 @@ const config: Config = {
         {
           type: "custom-navbarAuth",
           position: "right",
+        },
+        {
+          href: process.env.SSO_URL || "http://localhost:3001",
+          label: "Admin",
+          position: "right",
+          className: "navbar-admin-link",
+          "aria-label": "Open Admin Panel",
+          target: "_blank",
+          rel: "noopener noreferrer",
         },
       ],
     },
