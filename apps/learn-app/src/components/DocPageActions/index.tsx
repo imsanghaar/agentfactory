@@ -30,7 +30,6 @@ import TurndownService from "turndown";
 import { useAuth } from "@/contexts/AuthContext";
 import { getOAuthAuthorizationUrl } from "@/lib/auth-client";
 import { useStudyMode } from "@/contexts/StudyModeContext";
-import { ChapterVideoPlayer } from "@/components/ChapterVideoModal";
 
 // Concurrency limit for parallel fetching
 const FETCH_CONCURRENCY = 4;
@@ -838,13 +837,6 @@ export function DocPageActions({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleCopyMarkdown, handleDownloadMarkdown]);
 
-  // Handler for opening video modal
-  const handleOpenVideo = useCallback(() => {
-    // Dispatch custom event for video modal
-    const event = new CustomEvent("open-chapter-video");
-    window.dispatchEvent(event);
-  }, []);
-
   return (
     <div className="doc-page-actions" role="toolbar" aria-label="Page actions">
       {/* Study Mode Button - Hidden */}
@@ -927,24 +919,11 @@ export function DocPageActions({
         </DropdownMenu>
       </div>
 
-      {/* Play Video Button - Light blue border, no background */}
-      {isSpecialRootPage && docId === "preface-agent-native" && (
-        <Tooltip
-          content="Watch Video of this Chapter"
-          position="bottom"
-        >
-          <button
-            className="doc-page-actions-play"
-            onClick={handleOpenVideo}
-            aria-label="Play video"
-          >
-            <PlayIcon />
-            <span>Play Video</span>
-          </button>
-        </Tooltip>
-      )}
     </div>
   );
 }
 
 export default DocPageActions;
+
+
+

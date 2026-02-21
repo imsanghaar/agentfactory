@@ -67,6 +67,10 @@ local/api/chatkit-server/.env
 .claude/handoffs/
 .env
 
+# Admin scripts with credentials (NEVER commit)
+scripts/update-admin*.ts
+!scripts/update-admin-safe.ts
+
 
 .env.production
 

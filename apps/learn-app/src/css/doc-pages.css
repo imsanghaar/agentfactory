@@ -288,8 +288,7 @@ article {
   background: rgba(21, 101, 192, 0.12);
 }
 
-/* Play Video button - Light blue border, no background */
-.doc-page-actions-play {
+[data-theme='dark'] .doc-page-actions-ask-mode {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -306,38 +305,38 @@ article {
   min-height: 36px;
 }
 
-.doc-page-actions-play:hover {
+[data-theme='dark'] .doc-page-actions-ask-mode:hover {
   background: rgba(100, 181, 246, 0.08);
   border-color: #42a5f5;
   transform: translateY(-1px);
 }
 
-.doc-page-actions-play:active {
+[data-theme='dark'] .doc-page-actions-ask-mode:active {
   transform: translateY(0);
   background: rgba(100, 181, 246, 0.12);
 }
 
-.doc-page-actions-play:focus-visible {
+[data-theme='dark'] .doc-page-actions-ask-mode:focus-visible {
   outline: 2px solid #42a5f5;
   outline-offset: 2px;
 }
 
-.doc-page-actions-play svg {
+[data-theme='dark'] .doc-page-actions-ask-mode svg {
   width: 16px;
   height: 16px;
 }
 
-[data-theme="dark"] .doc-page-actions-play {
+[data-theme='dark'] .doc-page-actions-ask-mode {
   color: #ffffff;
   border-color: #64b5f6;
 }
 
-[data-theme="dark"] .doc-page-actions-play:hover {
+[data-theme='dark'] .doc-page-actions-ask-mode:hover {
   background: rgba(100, 181, 246, 0.15);
   border-color: #42a5f5;
 }
 
-[data-theme="dark"] .doc-page-actions-play:active {
+[data-theme='dark'] .doc-page-actions-ask-mode:active {
   background: rgba(100, 181, 246, 0.2);
 }
 
@@ -1984,8 +1983,7 @@ article {
     inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-/* Play Video floating button - Light blue border, transparent background */
-.play-video-float {
+[data-theme='dark'] .ask-mode-float-tooltip {
   background: transparent !important;
   border: 1px solid #64b5f6 !important;
   color: #000000 !important;
@@ -1995,8 +1993,7 @@ article {
   transition: all 200ms ease-out;
 }
 
-/* Tooltip for Play Video button */
-.play-video-float::after {
+[data-theme='dark'] .ask-mode-float-tooltip::after {
   content: "Watch";
   position: absolute;
   right: calc(100% + 10px);
@@ -2016,12 +2013,12 @@ article {
   box-shadow: 0 2px 8px rgba(100, 181, 246, 0.4);
 }
 
-.play-video-float:hover::after {
+[data-theme='dark'] .ask-mode-float-tooltip:hover::after {
   opacity: 1;
   visibility: visible;
 }
 
-.play-video-float:hover {
+[data-theme='dark'] .ask-mode-float-tooltip:hover {
   background: rgba(100, 181, 246, 0.08) !important;
   border-color: #42a5f5 !important;
   color: #000000 !important;
@@ -2029,20 +2026,20 @@ article {
   box-shadow: 0 4px 8px rgba(100, 181, 246, 0.4) !important;
 }
 
-[data-theme='dark'] .play-video-float {
+[data-theme='dark'] .ask-mode-float-tooltip:focus-visible {
   color: #ffffff !important;
   border-color: #64b5f6 !important;
   box-shadow: 0 2px 4px rgba(100, 181, 246, 0.4) !important;
 }
 
-[data-theme='dark'] .play-video-float:hover {
+[data-theme='dark'] .ask-mode-float-tooltip:active {
   background: rgba(100, 181, 246, 0.15) !important;
   border-color: #42a5f5 !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(100, 181, 246, 0.5) !important;
 }
 
-[data-theme='dark'] .play-video-float::after {
+[data-theme='dark'] .ask-mode-float-tooltip svg {
   background: #42a5f5;
   color: white;
   box-shadow: 0 2px 8px rgba(66, 165, 245, 0.5);
@@ -4133,7 +4130,6 @@ body.practice-split-active article {
 }
 /* ============================================================================
    CHAPTER VIDEO BUTTON - LOCKED STATE & TOOLTIP STYLES
-   Add these styles to doc-pages.css after the existing .doc-page-actions-play rules
    ============================================================================ */
 
 /* Locked state - when user is not signed in */
@@ -4245,3 +4241,4 @@ body.practice-split-active article {
 .doc-page-actions-video--locked svg {
   stroke-width: 2;
 }
+
