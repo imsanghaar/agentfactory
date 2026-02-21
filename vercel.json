@@ -1,7 +1,8 @@
 {
   "framework": "docusaurus",
+  "installCommand": "pnpm install",
   "buildCommand": "cd apps/learn-app && pnpm build",
-  "outputDirectory": "build",
+  "outputDirectory": "apps/learn-app/build",
   "cleanUrls": true,
   "trailingSlash": false
 }

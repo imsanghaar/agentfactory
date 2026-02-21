@@ -30,3 +30,6 @@ history/
 **/uv.lock
 **/package-lock.json
 **/yarn.lock
+
+# SSO app (separate Vercel deployment)
+apps/sso/vercel.json
