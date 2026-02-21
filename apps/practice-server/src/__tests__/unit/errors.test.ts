@@ -4,12 +4,12 @@ import type { ErrorCode, AppError } from '../../errors.js';
 
 describe('AppErrorInstance', () => {
   it('extends Error', () => {
-    const err = new AppErrorInstance('CLAUDE_NOT_FOUND', 'not found');
+    const err = new AppErrorInstance('QWEN_NOT_FOUND', 'not found');
     expect(err).toBeInstanceOf(Error);
   });
 
   it('sets name to AppError', () => {
-    const err = new AppErrorInstance('CLAUDE_NOT_FOUND', 'not found');
+    const err = new AppErrorInstance('QWEN_NOT_FOUND', 'not found');
     expect(err.name).toBe('AppError');
   });
 
@@ -82,7 +82,7 @@ describe('httpStatus', () => {
 
   it('returns 500 for server errors', () => {
     const serverErrors: ErrorCode[] = [
-      'CLAUDE_NOT_FOUND',
+      'QWEN_NOT_FOUND',
       'DOWNLOAD_FAILED',
       'DOWNLOAD_TIMEOUT',
       'EXTRACTION_FAILED',
@@ -96,7 +96,7 @@ describe('httpStatus', () => {
 
   it('covers all error codes', () => {
     const allCodes: ErrorCode[] = [
-      'CLAUDE_NOT_FOUND',
+      'QWEN_NOT_FOUND',
       'EXERCISE_NOT_FOUND',
       'DOWNLOAD_FAILED',
       'DOWNLOAD_TIMEOUT',

@@ -151,7 +151,7 @@ const DEFAULT_ORG = {
   logo: null,
   metadata: JSON.stringify({
     type: "default",
-    description: "Default organization for all Panaversity users",
+    description: "Default organization for all imsanghaar users",
     plan: "platform",
     features: ["learning", "projects", "multi-tenant"]
   }),

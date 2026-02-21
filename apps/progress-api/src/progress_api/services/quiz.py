@@ -14,7 +14,7 @@ from ..schemas.quiz import BadgeEarned, QuizSubmitRequest, QuizSubmitResponse, S
 from ..services.engine.badges import BADGE_DEFINITIONS, evaluate_badges
 from ..services.engine.streaks import calculate_streak
 from ..services.engine.xp import calculate_xp
-from .leaderboard import debounced_refresh_leaderboard
+from ..services.leaderboard import _get_user_rank
 from .shared import (
     get_activity_dates,
     invalidate_user_cache,
@@ -176,6 +176,9 @@ async def submit_quiz(
     # Calculate best score (include current attempt)
     best_score = max(request.score_pct, best_previous_score or 0)
 
+    # Get user's current rank (after commit, so it includes this submission)
+    user_rank = await _get_user_rank(session, user.id)
+
     return QuizSubmitResponse(
         xp_earned=xp_earned,
         total_xp=progress.total_xp,
@@ -183,6 +186,5 @@ async def submit_quiz(
         best_score=best_score,
         new_badges=new_badges_response,
         streak=StreakInfo(current=current_streak, longest=longest_streak),
+        rank=user_rank,
     )
-
-

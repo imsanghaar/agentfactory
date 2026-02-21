@@ -14,9 +14,9 @@ export default async function HomePage() {
     redirect("/auth/sign-in");
   }
 
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Panaversity SSO";
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "imsanghaar SSO";
   const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Secure Single Sign-On";
-  const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity";
+  const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "imsanghaar";
   const continueUrl = process.env.NEXT_PUBLIC_CONTINUE_URL || "http://localhost:3000";
 
   const firstName = session.user.name?.split(" ")[0] || session.user.email?.split("@")[0];
@@ -45,17 +45,18 @@ export default async function HomePage() {
           <div className="text-center mb-10 animate-in slide-in-from-top">
             <div className="flex justify-center mb-4">
               <Image
-                src="/logo.webp"
-                alt="Panaversity"
+                src="/new_favicon.png"
+                alt="imsanghaar"
                 width={280}
-                height={70}
-                className="h-16 w-auto"
+                height={158}
+                className="h-auto w-full max-w-[280px]"
                 priority
               />
             </div>
             <p className="text-sm text-slate-600 font-medium tracking-wide">
               {appDescription}
             </p>
+            <p className="text-xs text-slate-500 mt-1">{orgName}</p>
             <div className="mt-3 flex items-center justify-center gap-2">
               <div className="h-px w-12 bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
               <div className="w-1.5 h-1.5 rounded-full bg-pana-500" />
@@ -128,7 +129,7 @@ export default async function HomePage() {
           {/* Footer - matches auth pages */}
           <div className="mt-8 text-center animate-in slide-in-from-bottom">
             <p className="text-xs text-slate-500">
-              Powered by <span className="font-medium text-slate-700">{orgName}</span>
+              © {new Date().getFullYear()} {orgName}
             </p>
           </div>
         </div>

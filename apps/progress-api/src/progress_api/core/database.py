@@ -7,7 +7,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import AsyncAdaptedQueuePool
+from sqlalchemy.pool import AsyncAdaptedQueuePool, StaticPool
 
 from ..config import settings
 
@@ -39,19 +39,34 @@ def _prepare_asyncpg_url(url: str) -> tuple[str, dict]:
     return clean_url, connect_args
 
 
-# Prepare URL for asyncpg
-_db_url, _connect_args = _prepare_asyncpg_url(settings.database_url)
+def _is_sqlite_url(url: str) -> bool:
+    """Check if database URL is SQLite."""
+    return url.startswith("sqlite")
 
-# Create async engine with connection pooling
-engine = create_async_engine(
-    _db_url,
-    poolclass=AsyncAdaptedQueuePool,
-    pool_size=100,
-    max_overflow=70,
-    pool_pre_ping=True,
-    echo=settings.debug,
-    connect_args=_connect_args,
-)
+
+# Prepare URL and create engine
+if _is_sqlite_url(settings.database_url):
+    # SQLite configuration
+    engine = create_async_engine(
+        settings.database_url,
+        poolclass=StaticPool,
+        echo=settings.debug,
+        connect_args={"check_same_thread": False},
+    )
+    logger.info("[DB] Using SQLite database")
+else:
+    # PostgreSQL configuration
+    _db_url, _connect_args = _prepare_asyncpg_url(settings.database_url)
+    engine = create_async_engine(
+        _db_url,
+        poolclass=AsyncAdaptedQueuePool,
+        pool_size=100,
+        max_overflow=70,
+        pool_pre_ping=True,
+        echo=settings.debug,
+        connect_args=_connect_args,
+    )
+    logger.info("[DB] Using PostgreSQL database")
 
 # Session factory
 async_session = async_sessionmaker(
@@ -85,7 +100,15 @@ async def init_db() -> None:
 
 
 async def create_materialized_views() -> None:
-    """Create materialized views via raw SQL (create_all doesn't handle views)."""
+    """Create materialized views via raw SQL (create_all doesn't handle views).
+    
+    SQLite doesn't support materialized views, so this is a no-op for SQLite.
+    The leaderboard service will use live queries instead.
+    """
+    if _is_sqlite_url(settings.database_url):
+        logger.info("[DB] Skipping materialized views (SQLite doesn't support them)")
+        return
+        
     async with engine.begin() as conn:
         await conn.execute(
             text("""

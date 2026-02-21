@@ -23,21 +23,22 @@ export default function AuthLayout({
       />
 
       <div className="max-w-md lg:max-w-lg w-full relative z-10">
-        {/* Logo/Brand */}
+        {/* Brand */}
         <div className="text-center mb-10 animate-in slide-in-from-top">
           <div className="flex justify-center mb-4">
             <Image
-              src="/logo.webp"
-              alt="Panaversity"
-              width={280}
-              height={70}
-              className="h-16 w-auto"
+              src="/new_favicon.png"
+              alt="imsanghaar"
+              width={200}
+              height={113}
+              className="h-auto w-full max-w-[200px]"
               priority
             />
           </div>
           <p className="text-sm text-slate-600 font-medium tracking-wide">
-            {process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Secure Single Sign-On"}
+            Secure Single Sign-On
           </p>
+          <p className="text-xs text-slate-500 mt-1">imsanghaar</p>
           <div className="mt-3 flex items-center justify-center gap-2">
             <div className="h-px w-12 bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
             <div className="w-1.5 h-1.5 rounded-full bg-pana-500" />
@@ -53,7 +54,7 @@ export default function AuthLayout({
         {/* Footer */}
         <div className="mt-8 text-center animate-in slide-in-from-bottom">
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity"}
+            © {new Date().getFullYear()} imsanghaar
           </p>
         </div>
       </div>

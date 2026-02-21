@@ -30,9 +30,9 @@
  * - Run `pnpm run seed:setup` to create this organization in database
  * - The seed script uses this same ID to ensure consistency
  */
-export const DEFAULT_ORG_ID = "panaversity-default-org-id";
-export const DEFAULT_ORG_NAME = "Panaversity";
-export const DEFAULT_ORG_SLUG = "panaversity";
+export const DEFAULT_ORG_ID = "imsanghaar-default-org-id";
+export const DEFAULT_ORG_NAME = "imsanghaar";
+export const DEFAULT_ORG_SLUG = "imsanghaar";
 
 /**
  * ==============================================================================

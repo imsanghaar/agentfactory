@@ -84,7 +84,7 @@ sessions.post("/sessions/start", async (c) => {
 
     const sessionId = crypto.randomUUID();
 
-    // When a specific exercise is targeted, auto-prompt Claude to read INSTRUCTIONS.md
+    // When a specific exercise is targeted, auto-prompt Qwen to read INSTRUCTIONS.md
     const initialPrompt = subExercise
       ? "Read INSTRUCTIONS.md and present a brief overview of this exercise, then ask me what I'd like to work on."
       : undefined;

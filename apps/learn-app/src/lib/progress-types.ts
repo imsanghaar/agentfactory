@@ -24,6 +24,7 @@ export interface QuizSubmitResponse {
   best_score: number;
   new_badges: BadgeEarned[];
   streak: StreakInfo;
+  rank?: number | null;  // User's current rank after submission
 }
 
 export interface LessonCompleteRequest {

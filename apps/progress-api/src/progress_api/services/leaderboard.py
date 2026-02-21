@@ -7,13 +7,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.auth import CurrentUser
 from ..core.cache import get_cached_leaderboard, set_leaderboard_cache
+from ..core.database import _is_sqlite_url
 from ..core.redis import get_redis
+from ..config import settings
 from ..schemas.leaderboard import LeaderboardEntry, LeaderboardResponse
 
 logger = logging.getLogger(__name__)
 
 # Maximum entries returned in the leaderboard
 TOP_N = 100
+
+# Check if using SQLite (no materialized views)
+_IS_SQLITE = _is_sqlite_url(settings.database_url)
 
 
 async def get_leaderboard(
@@ -32,82 +37,89 @@ async def get_leaderboard(
     user_id = user.id if user else None
     logger.debug(f"[Leaderboard] redis client: {'connected' if redis else 'None'}")
 
-    # 1. Check cache
-    cached = await get_cached_leaderboard(redis)
-    logger.debug(f"[Leaderboard] cache {'HIT' if cached is not None else 'MISS'}")
-    if cached is not None:
-        # Still need to find current user's rank
-        current_user_rank = None
-        if user_id:
-            for entry in cached:
-                if entry["user_id"] == user_id:
-                    current_user_rank = entry["rank"]
-                    break
+    # 1. Check cache (skip if SQLite - data changes too frequently)
+    if not _IS_SQLITE:
+        cached = await get_cached_leaderboard(redis)
+        logger.debug(f"[Leaderboard] cache {'HIT' if cached is not None else 'MISS'}")
+        if cached is not None:
+            # Still need to find current user's rank
+            current_user_rank = None
+            if user_id:
+                for entry in cached:
+                    if entry["user_id"] == user_id:
+                        current_user_rank = entry["rank"]
+                        break
 
-            if current_user_rank is None:
-                current_user_rank = await _get_user_rank(session, user_id)
+                if current_user_rank is None:
+                    current_user_rank = await _get_user_rank(session, user_id)
 
-        return LeaderboardResponse(
-            entries=[LeaderboardEntry(**e) for e in cached],
-            current_user_rank=current_user_rank,
-            total_users=len(cached),
+            return LeaderboardResponse(
+                entries=[LeaderboardEntry(**e) for e in cached],
+                current_user_rank=current_user_rank,
+                total_users=len(cached),
+            )
+
+    # 2. Query materialized view for top N (or live query for SQLite)
+    if _IS_SQLITE:
+        rows = await _query_leaderboard_live(session)
+    else:
+        result = await session.execute(
+            text(
+                "SELECT id, display_name, avatar_url, total_xp, rank, badge_count"
+                " FROM leaderboard"
+                " ORDER BY rank ASC"
+                " LIMIT :limit"
+            ),
+            {"limit": TOP_N},
         )
+        rows = result.all()
 
-    # 2. Query materialized view for top N
-    result = await session.execute(
-        text(
-            "SELECT id, display_name, avatar_url, total_xp, rank, badge_count"
-            " FROM leaderboard"
-            " ORDER BY rank ASC"
-            " LIMIT :limit"
-        ),
-        {"limit": TOP_N},
-    )
-    rows = result.all()
+        # Lazy refresh: if view is empty but users with XP exist, refresh and retry
+        if not rows:
+            has_data = await session.execute(
+                text("SELECT 1 FROM user_progress WHERE total_xp > 0 LIMIT 1")
+            )
+            if has_data.first() is not None:
+                logger.info("[Leaderboard] View empty but data exists — refreshing")
+                try:
+                    await refresh_leaderboard(session)
+                    result = await session.execute(
+                        text(
+                            "SELECT id, display_name, avatar_url, total_xp, rank, badge_count"
+                            " FROM leaderboard"
+                            " ORDER BY rank ASC"
+                            " LIMIT :limit"
+                        ),
+                        {"limit": TOP_N},
+                    )
+                    rows = result.all()
+                    logger.info(f"[Leaderboard] After refresh: {len(rows)} entries")
+                except Exception as e:
+                    logger.error(f"[Leaderboard] Lazy refresh failed: {e}")
 
-    # Lazy refresh: if view is empty but users with XP exist, refresh and retry
-    if not rows:
-        has_data = await session.execute(
-            text("SELECT 1 FROM user_progress WHERE total_xp > 0 LIMIT 1")
-        )
-        if has_data.first() is not None:
-            logger.info("[Leaderboard] View empty but data exists — refreshing")
-            try:
-                await refresh_leaderboard(session)
-                result = await session.execute(
-                    text(
-                        "SELECT id, display_name, avatar_url, total_xp, rank, badge_count"
-                        " FROM leaderboard"
-                        " ORDER BY rank ASC"
-                        " LIMIT :limit"
-                    ),
-                    {"limit": TOP_N},
-                )
-                rows = result.all()
-                logger.info(f"[Leaderboard] After refresh: {len(rows)} entries")
-            except Exception as e:
-                logger.error(f"[Leaderboard] Lazy refresh failed: {e}")
-
-            # Ultimate fallback: query tables directly if view refresh failed
-            if not rows:
-                logger.warning(
-                    "[Leaderboard] View still empty after refresh — querying tables directly"
-                )
-                rows = await _query_leaderboard_live(session)
-        else:
-            logger.info("[Leaderboard] View empty and no users with XP")
+                # Ultimate fallback: query tables directly if view refresh failed
+                if not rows:
+                    logger.warning(
+                        "[Leaderboard] View still empty after refresh — querying tables directly"
+                    )
+                    rows = await _query_leaderboard_live(session)
+            else:
+                logger.info("[Leaderboard] View empty and no users with XP")
 
     # Fetch badge_ids for all users in the result set
     user_ids = [row.id for row in rows]
     badge_map: dict[str, list[str]] = {uid: [] for uid in user_ids}
     if user_ids:
+        # Use IN clause for SQLite compatibility (ANY is PostgreSQL-specific)
+        placeholders = [f":uid_{i}" for i in range(len(user_ids))]
+        params = {f"uid_{i}": uid for i, uid in enumerate(user_ids)}
         badge_result = await session.execute(
             text(
-                "SELECT user_id, badge_id FROM user_badges"
-                " WHERE user_id = ANY(:user_ids)"
-                " ORDER BY earned_at ASC"
+                f"SELECT user_id, badge_id FROM user_badges"
+                f" WHERE user_id IN ({', '.join(placeholders)})"
+                f" ORDER BY earned_at ASC"
             ),
-            {"user_ids": user_ids},
+            params,
         )
         for badge_row in badge_result.all():
             badge_map[badge_row.user_id].append(badge_row.badge_id)
@@ -151,6 +163,34 @@ async def get_leaderboard(
 
 async def _get_user_rank(session: AsyncSession, user_id: str) -> int | None:
     """Get a specific user's rank from the materialized view, with live fallback."""
+    # For SQLite, skip materialized view and go straight to live calculation
+    if _IS_SQLITE:
+        try:
+            # Only calculate rank if user actually has progress with XP
+            has_progress = await session.execute(
+                text("SELECT 1 FROM user_progress WHERE user_id = :uid AND total_xp > 0"),
+                {"uid": user_id},
+            )
+            if has_progress.first() is None:
+                return None
+
+            result = await session.execute(
+                text(
+                    "SELECT COUNT(*) + 1 FROM user_progress up"
+                    " JOIN users u ON up.user_id = u.id"
+                    " WHERE u.show_on_leaderboard = TRUE"
+                    " AND up.total_xp > ("
+                    "   SELECT COALESCE(total_xp, 0) FROM user_progress WHERE user_id = :uid"
+                    " )"
+                ),
+                {"uid": user_id},
+            )
+            return result.scalar()
+        except Exception as e:
+            logger.debug(f"[Leaderboard] Live rank calculation failed: {e}")
+            return None
+    
+    # PostgreSQL: try materialized view first
     result = await session.execute(
         text("SELECT rank FROM leaderboard WHERE id = :user_id"),
         {"user_id": user_id},
@@ -209,7 +249,13 @@ async def refresh_leaderboard(session: AsyncSession) -> None:
 
     Tries CONCURRENTLY first (allows reads during refresh), falls back
     to non-concurrent if the view has never been populated.
+    
+    SQLite doesn't support materialized views, so this is a no-op.
     """
+    if _IS_SQLITE:
+        logger.debug("[Leaderboard] Skipping refresh (SQLite doesn't support materialized views)")
+        return
+        
     try:
         await session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY leaderboard"))
         await session.commit()

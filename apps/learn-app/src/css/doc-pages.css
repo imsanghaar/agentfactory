@@ -583,7 +583,6 @@ article {
 .projector-assembly {
   position: absolute;
   top: -300px;
-  left: 50%;
   transform: translateX(-50%);
   transition: top 1s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 60;
@@ -592,25 +591,169 @@ article {
   align-items: center;
 }
 
+.projector-left {
+  left: 15%;
+}
+
+.projector-right {
+  left: 85%;
+}
+
 .projector-descended {
   top: 20px;
+}
+
+/* Projector Mounting Stand */
+.projector-stand {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+}
+
+.stand-pole {
+  width: 16px;
+  height: 80px;
+  background: linear-gradient(90deg, 
+    #1a1a1a 0%, 
+    #4a4a4a 20%, 
+    #6a6a6a 50%, 
+    #4a4a4a 80%, 
+    #1a1a1a 100%);
+  position: relative;
+  margin-top: 10px;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Pole mounting bolts */
+.stand-pole::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #888 0%,
+    #555 50%,
+    #333 100%
+  );
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stand-mount {
+  width: 50px;
+  height: 25px;
+  background: linear-gradient(145deg, #3a3a3a, #2a2a2a, #1a1a1a);
+  border-radius: 6px 6px 0 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    0 -2px 6px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Ceiling mount plate */
+.stand-mount::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 5px;
+  right: 5px;
+  height: 8px;
+  background: linear-gradient(90deg, 
+    #2a2a2a 0%, 
+    #4a4a4a 50%, 
+    #2a2a2a 100%);
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Mount bolts */
+.stand-mount::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #999 0%,
+    #666 50%,
+    #444 100%
+  );
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* Projector Body */
 .projector-body {
   width: 180px;
   height: 80px;
-  background: linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0d0d0d 100%);
-  border-radius: 12px;
+  background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 30%, #1a1a1a 70%, #0d0d0d 100%);
+  border-radius: 8px;
   position: relative;
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
     0 4px 16px rgba(0, 0, 0, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.4);
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
+  z-index: 10;
+}
+
+/* Projector Body Details - Side panels */
+.projector-body::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 50px;
+  background: linear-gradient(90deg, 
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(50, 50, 50, 0.2) 50%,
+    rgba(0, 0, 0, 0.3) 100%);
+  border-radius: 4px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.projector-body::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 50px;
+  background: linear-gradient(90deg, 
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(50, 50, 50, 0.2) 50%,
+    rgba(0, 0, 0, 0.3) 100%);
+  border-radius: 4px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Projector Branding */
@@ -621,47 +764,89 @@ article {
   transform: translateX(-50%);
   font-size: 9px;
   font-weight: 600;
-  color: #909090;
-  letter-spacing: 0.5px;
+  color: #c0c0c0;
+  letter-spacing: 1px;
   text-transform: lowercase;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
-  z-index: 10;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.5), 0 0 10px rgba(100, 181, 246, 0.3);
+  z-index: 20;
+  font-family: 'Courier New', monospace;
 }
 
 [data-theme="dark"] .projector-branding {
-  color: #b0b0b0;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  color: #e0e0e0;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 12px rgba(100, 181, 246, 0.4);
 }
 
 /* Projector Lens */
 .projector-lens {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
   border-radius: 50%;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.8),
-    0 0 0 4px #333;
+    inset 0 3px 12px rgba(0, 0, 0, 0.9),
+    inset 0 -2px 6px rgba(255, 255, 255, 0.1),
+    0 0 0 5px #2a2a2a,
+    0 0 0 7px #1a1a1a,
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  z-index: 15;
 }
 
 .lens-glass {
-  width: 35px;
-  height: 35px;
+  width: 45px;
+  height: 45px;
   background: radial-gradient(
-    circle at 30% 30%,
-    rgba(100, 181, 246, 0.3) 0%,
-    rgba(33, 150, 243, 0.1) 40%,
-    rgba(0, 0, 0, 0.8) 100%
+    circle at 35% 35%,
+    rgba(100, 181, 246, 0.4) 0%,
+    rgba(33, 150, 243, 0.2) 30%,
+    rgba(20, 100, 200, 0.15) 50%,
+    rgba(0, 0, 0, 0.9) 70%,
+    rgba(0, 0, 0, 1) 100%
   );
   border-radius: 50%;
-  border: 2px solid #444;
+  border: 3px solid #333;
   box-shadow:
-    inset 0 0 20px rgba(100, 181, 246, 0.2),
-    0 0 10px rgba(100, 181, 246, 0.3);
+    inset 0 0 30px rgba(100, 181, 246, 0.3),
+    inset 0 0 60px rgba(33, 150, 243, 0.2),
+    0 0 15px rgba(100, 181, 246, 0.4),
+    0 0 30px rgba(33, 150, 243, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Lens reflection highlight */
+.lens-glass::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 30%;
+  height: 20%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+/* Lens glass edge ring */
+.lens-glass::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 2px solid rgba(100, 181, 246, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(100, 181, 246, 0.2);
 }
 
 /* Projector Vents */
@@ -711,49 +896,56 @@ article {
   filter: blur(8px);
 }
 
-.ray-center {
+/* Left projector rays angle towards center (right) */
+.projector-left .ray {
+  transform-origin: top center;
+}
+
+.projector-left .ray-left {
+  left: 30%;
+  width: 120px;
+  height: 100%;
+  transform: rotate(8deg);
+}
+
+.projector-left .ray-center {
   left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
+  transform: translateX(-50%) rotate(12deg);
+  width: 220px;
   height: 100%;
 }
 
-.ray-left {
-  left: 25%;
-  width: 100px;
+.projector-left .ray-right {
+  right: 30%;
+  width: 120px;
   height: 100%;
-  transform: rotate(-15deg);
+  transform: rotate(18deg);
 }
 
-.ray-right {
-  right: 25%;
-  width: 100px;
-  height: 100%;
-  transform: rotate(15deg);
+/* Right projector rays angle towards center (left) */
+.projector-right .ray {
+  transform-origin: top center;
 }
 
-.ray-far-left {
-  left: 10%;
-  width: 60px;
+.projector-right .ray-left {
+  left: 30%;
+  width: 120px;
   height: 100%;
-  transform: rotate(-25deg);
-  background: linear-gradient(
-    180deg,
-    rgba(100, 181, 246, 0.08) 0%,
-    transparent 100%
-  );
+  transform: rotate(-18deg);
 }
 
-.ray-far-right {
-  right: 10%;
-  width: 60px;
+.projector-right .ray-center {
+  left: 50%;
+  transform: translateX(-50%) rotate(-12deg);
+  width: 220px;
   height: 100%;
-  transform: rotate(25deg);
-  background: linear-gradient(
-    180deg,
-    rgba(100, 181, 246, 0.08) 0%,
-    transparent 100%
-  );
+}
+
+.projector-right .ray-right {
+  right: 30%;
+  width: 120px;
+  height: 100%;
+  transform: rotate(-8deg);
 }
 
 /* Projection Screen */
@@ -868,29 +1060,123 @@ article {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .projector-assembly {
+    top: -150px;
+  }
+  
+  .projector-left {
+    left: 8%;
+  }
+  
+  .projector-right {
+    left: 92%;
+  }
+
+  .projector-descended {
+    top: 10px;
+  }
+
+  .projector-stand {
+    top: -60px;
+    height: 60px;
+  }
+
+  .stand-pole {
+    width: 10px;
+    height: 45px;
+  }
+
+  .stand-pole::before {
+    width: 14px;
+    height: 14px;
+    top: 6px;
+  }
+
+  .stand-mount {
+    width: 35px;
+    height: 18px;
+  }
+
+  .stand-mount::before {
+    width: 25px;
+    height: 5px;
+  }
+
+  .stand-mount::after {
+    width: 12px;
+    height: 12px;
+  }
+
   .projector-body {
     width: 120px;
     height: 50px;
   }
 
+  .projector-body::before,
+  .projector-body::after {
+    width: 20px;
+    height: 30px;
+    left: 6px;
+    right: 6px;
+  }
+
+  .projector-body::after {
+    left: auto;
+    right: 6px;
+  }
+
   .projector-lens {
+    width: 40px;
+    height: 40px;
+  }
+
+  .lens-glass {
     width: 30px;
     height: 30px;
   }
 
-  .lens-glass {
-    width: 20px;
-    height: 20px;
+  .projector-branding {
+    font-size: 6px;
+    top: 5px;
+    letter-spacing: 0.5px;
   }
 
-  .projector-branding {
-    font-size: 7px;
+  .projector-vents {
+    height: 5px;
     top: 6px;
+    left: 12px;
+    right: 12px;
   }
 
   .projector-rays {
     width: 100%;
-    height: 250px;
+    height: 180px;
+    top: 50px;
+  }
+
+  /* Adjust ray angles for mobile */
+  .projector-left .ray-left {
+    transform: rotate(5deg);
+  }
+
+  .projector-left .ray-center {
+    transform: translateX(-50%) rotate(8deg);
+  }
+
+  .projector-left .ray-right {
+    transform: rotate(12deg);
+  }
+
+  .projector-right .ray-left {
+    transform: rotate(-12deg);
+  }
+
+  .projector-right .ray-center {
+    transform: translateX(-50%) rotate(-8deg);
+  }
+
+  .projector-right .ray-right {
+    transform: rotate(-5deg);
   }
 
   .projection-screen-container {
@@ -3844,4 +4130,118 @@ body.practice-split-active article {
   .practice-resize-handle {
     display: none;
   }
+}
+/* ============================================================================
+   CHAPTER VIDEO BUTTON - LOCKED STATE & TOOLTIP STYLES
+   Add these styles to doc-pages.css after the existing .doc-page-actions-play rules
+   ============================================================================ */
+
+/* Locked state - when user is not signed in */
+.doc-page-actions-video--locked {
+  border-color: #9ca3af !important; /* Gray border for locked state */
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  opacity: 0.75;
+}
+
+.doc-page-actions-video--locked:hover {
+  background: rgba(156, 163, 175, 0.08) !important;
+  border-color: #9ca3af !important;
+  transform: none !important;
+}
+
+.doc-page-actions-video--locked:active {
+  transform: none !important;
+  background: rgba(156, 163, 175, 0.12) !important;
+}
+
+[data-theme="dark"] .doc-page-actions-video--locked {
+  border-color: #6b7280 !important;
+  color: #9ca3af !important;
+}
+
+/* Tooltip for locked video button */
+.doc-page-actions-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.doc-page-actions-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #1f2937;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 200ms ease-out;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.doc-page-actions-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+}
+
+/* Show tooltip on hover of the wrapper or when triggered by click */
+.doc-page-actions-tooltip-wrapper:hover .doc-page-actions-tooltip,
+.doc-page-actions-tooltip--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(4px);
+}
+
+/* Sign up link in tooltip */
+.doc-page-actions-tooltip-link {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+
+.doc-page-actions-tooltip-link:hover {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .doc-page-actions-tooltip {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+[data-theme="dark"] .doc-page-actions-tooltip::after {
+  border-top-color: #f3f4f6;
+}
+
+[data-theme="dark"] .doc-page-actions-tooltip-link {
+  color: #2563eb;
+}
+
+[data-theme="dark"] .doc-page-actions-tooltip-link:hover {
+  color: #1d4ed8;
+}
+
+/* Lock icon styling */
+.doc-page-actions-video--locked svg {
+  stroke-width: 2;
 }

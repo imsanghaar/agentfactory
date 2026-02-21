@@ -16,15 +16,15 @@
 
 | Variable | Purpose | Example | Required |
 |----------|---------|---------|----------|
-| `ALLOWED_ORIGINS` | Comma-separated allowed origins | `http://localhost:3000,https://panaversity.org` | ✅ Yes |
+| `ALLOWED_ORIGINS` | Comma-separated allowed origins | `http://localhost:3000,https://imsanghaar.vercel.app` | ✅ Yes |
 
 ### Branding (White-Label Support)
 
 | Variable | Purpose | Example | Default |
 |----------|---------|---------|---------|
-| `NEXT_PUBLIC_APP_NAME` | Application name shown in UI | `Panaversity SSO` | `Panaversity SSO` |
+| `NEXT_PUBLIC_APP_NAME` | Application name shown in UI | `imsanghaar SSO` | `imsanghaar SSO` |
 | `NEXT_PUBLIC_APP_DESCRIPTION` | App description in header | `Secure Single Sign-On` | `Secure Single Sign-On` |
-| `NEXT_PUBLIC_ORG_NAME` | Organization name in emails/footer | `Panaversity` | `Panaversity` |
+| `NEXT_PUBLIC_ORG_NAME` | Organization name in emails/footer | `imsanghaar` | `imsanghaar` |
 
 ### Continue URL Configuration
 

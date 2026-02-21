@@ -34,26 +34,40 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const refreshProgress = useCallback(async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.log("[ProgressContext] No session, skipping refresh");
+      return;
+    }
+    console.log("[ProgressContext] Refreshing progress...");
     setIsLoading(true);
     try {
       const data = await getProgress(progressApiUrl);
-      setProgress(data);
+      console.log("[ProgressContext] Progress loaded:", {
+        totalXp: data.stats?.total_xp,
+        rank: data.stats?.rank,
+        badgeCount: data.stats?.badge_count,
+      });
+      setProgress((prev) => {
+        // Force re-render even if data is same by always creating new reference
+        return { ...data };
+      });
     } catch (err) {
       console.error("[ProgressContext] Failed to load progress:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [session, progressApiUrl]);
+  }, [session?.user?.id, progressApiUrl]);
 
-  // Load on auth
+  // Load on auth change
   useEffect(() => {
     if (session?.user) {
+      console.log("[ProgressContext] User logged in, loading progress...");
       refreshProgress();
     } else {
+      console.log("[ProgressContext] User logged out, clearing progress");
       setProgress(null);
     }
-  }, [session?.user?.id, refreshProgress]);
+  }, [session?.user?.id]);
 
   const isLessonCompleted = useCallback(
     (chapterSlug: string, lessonSlug: string): boolean => {

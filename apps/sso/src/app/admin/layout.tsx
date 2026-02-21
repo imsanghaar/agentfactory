@@ -57,7 +57,7 @@ export default function AdminLayout({
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <Link href="/admin" className="text-xl font-bold text-gray-900">
-                Panaversity Admin
+                Imam Sanghaar Admin
               </Link>
               <nav className="hidden md:flex gap-6">
                 <Link

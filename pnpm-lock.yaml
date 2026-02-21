@@ -115,6 +115,9 @@ importers:
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
+      nx:
+        specifier: ^22.5.2
+        version: 22.5.2
       prism-react-renderer:
         specifier: ^2.3.0
         version: 2.4.1(react@19.2.3)
@@ -3078,8 +3081,18 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@nx/nx-darwin-arm64@22.5.2':
+    resolution: {integrity: sha512-CPtgK/s4FQ0Y/6WmHpJccOTANve5UjlFajLp+S8Z538zHdc5a5MjJBcXo9oRzKNvhTHoGijr/fCMU2erMrYYtg==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@nx/nx-darwin-x64@22.3.3':
     resolution: {integrity: sha512-6ZQ6rMqH8NY4Jz+Gc89D5bIH2NxZb5S/vaA4yJ9RrqAfl4QWchNFD5na+aRivSd+UdsYLPKKl6qohet5SE6vOg==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@nx/nx-darwin-x64@22.5.2':
+    resolution: {integrity: sha512-YuFGIpmtMPbMM3QchJttlLFE5oNenE+3mRCWcMNrXPOixsw28flvYWhFcHE3CPV8q/E+Yg0FsOG+8u1p7eEgWg==}
     cpu: [x64]
     os: [darwin]
 
@@ -3088,8 +3101,18 @@ packages:
     cpu: [x64]
     os: [freebsd]
 
+  '@nx/nx-freebsd-x64@22.5.2':
+    resolution: {integrity: sha512-Oy3jejPB7lszxAf4rdTpJfOBVgAUtkUZJCLTdGdnpveF/m3s9MN9DaeEXgUs0mMp1qV3Y0KE3KcVHqII54AoBQ==}
+    cpu: [x64]
+    os: [freebsd]
+
   '@nx/nx-linux-arm-gnueabihf@22.3.3':
     resolution: {integrity: sha512-/zn0altzM15S7qAgXMaB41vHkEn18HyTVUvRrjmmwaVqk9WfmDmqOQlGWoJ6XCbpvKQ8bh14RyhR9LGw1JJkNA==}
+    cpu: [arm]
+    os: [linux]
+
+  '@nx/nx-linux-arm-gnueabihf@22.5.2':
+    resolution: {integrity: sha512-38bZGStG6bZ+R7ZbGxvnDVjVrV6bRTsiX8rr3fmM/AkEfvgyhWgE3R+xqUHoJVM4PK0I2YlYoSjIny4gFeOBxQ==}
     cpu: [arm]
     os: [linux]
 
@@ -3098,8 +3121,18 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  '@nx/nx-linux-arm64-gnu@22.5.2':
+    resolution: {integrity: sha512-D+tPXB0tkSuDPsuXvyQIsF3f3PBWfAwIe9FkBWtVoDVYqE+jbz+tVGsjQMNWGafLE4sC8ZQdjhsxyT8I53Anbw==}
+    cpu: [arm64]
+    os: [linux]
+
   '@nx/nx-linux-arm64-musl@22.3.3':
     resolution: {integrity: sha512-K02U88Q0dpvCfmSXXvY7KbYQSa1m+mkYeqDBRHp11yHk1GoIqaHp8oEWda7FV4gsriNExPSS5tX1/QGVoLZrCw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@nx/nx-linux-arm64-musl@22.5.2':
+    resolution: {integrity: sha512-UbO527qqa8KLBi13uXto5SmxcZv1Smer7sPexJonshDlmrJsyvx5m8nm6tcSv04W5yQEL90vPlTux8dNvEDWrw==}
     cpu: [arm64]
     os: [linux]
 
@@ -3108,8 +3141,18 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@nx/nx-linux-x64-gnu@22.5.2':
+    resolution: {integrity: sha512-wR6596Vr/Z+blUAmjLHG2TCQMs4O1oi9JXK1J/PoPeO9UqdHwStCJBAd61zDFSUYJe0x+dkeRQu96fE5BW8Kcg==}
+    cpu: [x64]
+    os: [linux]
+
   '@nx/nx-linux-x64-musl@22.3.3':
     resolution: {integrity: sha512-uxBXx5q+S5OGatbYDxnamsKXRKlYn+Eq1nrCAHaf8rIfRoHlDiRV2PqtWuF+O2pxR5FWKpvr+/sZtt9rAf7KMw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@nx/nx-linux-x64-musl@22.5.2':
+    resolution: {integrity: sha512-MBXOw4AH4FWl4orwVykj/e75awTNDePogrl3pXNX9NcQLdj6JzS4e2jaALQeRBQLxQzeFvFQV/W4PBzoPV6/NA==}
     cpu: [x64]
     os: [linux]
 
@@ -3118,8 +3161,18 @@ packages:
     cpu: [arm64]
     os: [win32]
 
+  '@nx/nx-win32-arm64-msvc@22.5.2':
+    resolution: {integrity: sha512-SaWSZkRH5uV8vP2lj6RRv+kw2IzaIDXkutReOXpooshIWZl9KjrQELNTCZTYyhLDsMlcyhSvLFlTiA4NkZ8udw==}
+    cpu: [arm64]
+    os: [win32]
+
   '@nx/nx-win32-x64-msvc@22.3.3':
     resolution: {integrity: sha512-EDR8BtqeDvVNQ+kPwnfeSfmerYetitU3tDkxOMIybjKJDh69U2JwTB8n9ARwNaZQbNk7sCGNRUSZFTbAAUKvuQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@nx/nx-win32-x64-msvc@22.5.2':
+    resolution: {integrity: sha512-IK9Xd5Gh9ys4oun5ko8Uv8AEi2byN2FPXBsR1BLkt93SJ0bJVTdXGyEA+fWmEclLZIM0PiZj1KbCajVn9NEPtw==}
     cpu: [x64]
     os: [win32]
 
@@ -9710,6 +9763,18 @@ packages:
       '@swc/core':
         optional: true
 
+  nx@22.5.2:
+    resolution: {integrity: sha512-s7dd2BZQOremv1AYhxwBY6NzJV9ETa6/OJ/zau/ulbLnHu8E5UAv+EjMC80m3qP3nob5OXnWiITKM9CcOHy6qw==}
+    hasBin: true
+    peerDependencies:
+      '@swc-node/register': ^1.11.1
+      '@swc/core': ^1.15.8
+    peerDependenciesMeta:
+      '@swc-node/register':
+        optional: true
+      '@swc/core':
+        optional: true
+
   oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
 
@@ -14750,7 +14815,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)':
+  '@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)':
     dependencies:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
@@ -14761,9 +14826,9 @@ snapshots:
       nanostores: 1.1.0
       zod: 4.3.3
 
-  '@better-auth/telemetry@1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))':
+  '@better-auth/telemetry@1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))':
     dependencies:
-      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
+      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
 
@@ -17203,31 +17268,61 @@ snapshots:
   '@nx/nx-darwin-arm64@22.3.3':
     optional: true
 
+  '@nx/nx-darwin-arm64@22.5.2':
+    optional: true
+
   '@nx/nx-darwin-x64@22.3.3':
+    optional: true
+
+  '@nx/nx-darwin-x64@22.5.2':
     optional: true
 
   '@nx/nx-freebsd-x64@22.3.3':
     optional: true
 
+  '@nx/nx-freebsd-x64@22.5.2':
+    optional: true
+
   '@nx/nx-linux-arm-gnueabihf@22.3.3':
+    optional: true
+
+  '@nx/nx-linux-arm-gnueabihf@22.5.2':
     optional: true
 
   '@nx/nx-linux-arm64-gnu@22.3.3':
     optional: true
 
+  '@nx/nx-linux-arm64-gnu@22.5.2':
+    optional: true
+
   '@nx/nx-linux-arm64-musl@22.3.3':
+    optional: true
+
+  '@nx/nx-linux-arm64-musl@22.5.2':
     optional: true
 
   '@nx/nx-linux-x64-gnu@22.3.3':
     optional: true
 
+  '@nx/nx-linux-x64-gnu@22.5.2':
+    optional: true
+
   '@nx/nx-linux-x64-musl@22.3.3':
+    optional: true
+
+  '@nx/nx-linux-x64-musl@22.5.2':
     optional: true
 
   '@nx/nx-win32-arm64-msvc@22.3.3':
     optional: true
 
+  '@nx/nx-win32-arm64-msvc@22.5.2':
+    optional: true
+
   '@nx/nx-win32-x64-msvc@22.3.3':
+    optional: true
+
+  '@nx/nx-win32-x64-msvc@22.5.2':
     optional: true
 
   '@nx/react@22.3.3(@babel/core@7.28.5)(@babel/traverse@7.28.5)(@swc/helpers@0.5.15)(@zkochan/js-yaml@0.0.7)(eslint@9.39.2(jiti@2.6.1))(next@15.5.9(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))(nx@22.3.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.6.1)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@22.19.3)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.104.1)':
@@ -20005,8 +20100,8 @@ snapshots:
 
   better-auth@1.4.10(drizzle-kit@0.28.1)(drizzle-orm@0.36.4(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@19.2.7)(kysely@0.28.9)(postgres@3.4.7)(react@18.3.1))(next@15.5.9(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.97.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@22.19.3)(jiti@1.21.7)(jsdom@28.0.0(@noble/hashes@2.0.1))(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
-      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
+      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
+      '@better-auth/telemetry': 1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       '@noble/ciphers': 2.1.1
@@ -20027,8 +20122,8 @@ snapshots:
 
   better-auth@1.4.10(next@15.5.9(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@22.19.3)(jiti@2.6.1)(jsdom@28.0.0(@noble/hashes@2.0.1))(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
-      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@4.3.3))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
+      '@better-auth/core': 1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0)
+      '@better-auth/telemetry': 1.4.10(@better-auth/core@1.4.10(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.7(zod@3.25.76))(jose@6.1.3)(kysely@0.28.9)(nanostores@1.1.0))
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       '@noble/ciphers': 2.1.1
@@ -25435,6 +25530,58 @@ snapshots:
       '@nx/nx-linux-x64-musl': 22.3.3
       '@nx/nx-win32-arm64-msvc': 22.3.3
       '@nx/nx-win32-x64-msvc': 22.3.3
+    transitivePeerDependencies:
+      - debug
+
+  nx@22.5.2:
+    dependencies:
+      '@napi-rs/wasm-runtime': 0.2.4
+      '@yarnpkg/lockfile': 1.1.0
+      '@yarnpkg/parsers': 3.0.2
+      '@zkochan/js-yaml': 0.0.7
+      axios: 1.13.2
+      cli-cursor: 3.1.0
+      cli-spinners: 2.6.1
+      cliui: 8.0.1
+      dotenv: 16.4.7
+      dotenv-expand: 11.0.7
+      ejs: 3.1.10
+      enquirer: 2.3.6
+      figures: 3.2.0
+      flat: 5.0.2
+      front-matter: 4.0.2
+      ignore: 7.0.5
+      jest-diff: 30.2.0
+      jsonc-parser: 3.2.0
+      lines-and-columns: 2.0.3
+      minimatch: 10.1.1
+      node-machine-id: 1.1.12
+      npm-run-path: 4.0.1
+      open: 8.4.2
+      ora: 5.3.0
+      picocolors: 1.1.1
+      resolve.exports: 2.0.3
+      semver: 7.7.3
+      string-width: 4.2.3
+      tar-stream: 2.2.0
+      tmp: 0.2.5
+      tree-kill: 1.2.2
+      tsconfig-paths: 4.2.0
+      tslib: 2.8.1
+      yaml: 2.8.2
+      yargs: 17.7.2
+      yargs-parser: 21.1.1
+    optionalDependencies:
+      '@nx/nx-darwin-arm64': 22.5.2
+      '@nx/nx-darwin-x64': 22.5.2
+      '@nx/nx-freebsd-x64': 22.5.2
+      '@nx/nx-linux-arm-gnueabihf': 22.5.2
+      '@nx/nx-linux-arm64-gnu': 22.5.2
+      '@nx/nx-linux-arm64-musl': 22.5.2
+      '@nx/nx-linux-x64-gnu': 22.5.2
+      '@nx/nx-linux-x64-musl': 22.5.2
+      '@nx/nx-win32-arm64-msvc': 22.5.2
+      '@nx/nx-win32-x64-msvc': 22.5.2
     transitivePeerDependencies:
       - debug
 

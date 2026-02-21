@@ -7,7 +7,7 @@ import { platform, arch } from "node:os";
 import { createRequire } from "node:module";
 import type { AppError } from "../errors.js";
 import { appError } from "../errors.js";
-import { getCachedClaudePath } from "../claude-path.js";
+import { getCachedQwenPath } from "../qwen-path.js";
 
 interface Session {
   pty: IPty;
@@ -66,35 +66,35 @@ export function spawnSession(
     killAllSessions();
   }
 
-  const claudePath = getCachedClaudePath();
-  if (!claudePath) {
+  const qwenPath = getCachedQwenPath();
+  if (!qwenPath) {
     throw appError(
-      "CLAUDE_NOT_FOUND",
-      "Claude Code not found",
-      "Install Claude Code and ensure it's in your PATH",
+      "QWEN_NOT_FOUND",
+      "Qwen CLI not found",
+      "Install Qwen CLI and ensure it's in your PATH",
     );
   }
 
-  // Build a clean environment: strip all Claude Code env vars to avoid
-  // "nested session" detection when the practice server runs inside a Claude Code terminal.
+  // Build a clean environment: strip all Qwen CLI env vars to avoid
+  // "nested session" detection when the practice server runs inside a Qwen terminal.
   const cleanEnv: Record<string, string> = {};
   for (const [key, value] of Object.entries(process.env)) {
-    if (value != null && !key.startsWith("CLAUDE")) {
+    if (value != null && !key.startsWith("QWEN")) {
       cleanEnv[key] = value;
     }
   }
 
-  // If an initial prompt is provided, pass it as a CLI argument so Claude Code
+  // If an initial prompt is provided, pass it as a CLI argument so Qwen CLI
   // starts in interactive mode with that message already submitted.
-  const claudeArgs = initialPrompt ? [initialPrompt] : [];
+  const qwenArgs = initialPrompt ? [initialPrompt] : [];
 
   // On Windows, .cmd files (npm global installs) must be spawned through cmd.exe.
   // Direct pty.spawn of a .cmd fails because ConPTY expects an executable, not a batch script.
   const isWindows = process.platform === "win32";
-  const isCmdFile = isWindows && claudePath.endsWith(".cmd");
+  const isCmdFile = isWindows && qwenPath.endsWith(".cmd");
 
-  const file = isCmdFile ? process.env.ComSpec || "cmd.exe" : claudePath;
-  const args = isCmdFile ? ["/c", claudePath, ...claudeArgs] : claudeArgs;
+  const file = isCmdFile ? process.env.ComSpec || "cmd.exe" : qwenPath;
+  const args = isCmdFile ? ["/c", qwenPath, ...qwenArgs] : qwenArgs;
 
   ensureSpawnHelperExecutable();
 
@@ -113,8 +113,8 @@ export function spawnSession(
   } catch (err) {
     throw appError(
       "PTY_SPAWN_FAILED",
-      `Failed to start Claude Code: ${err instanceof Error ? err.message : String(err)}`,
-      "Ensure Claude Code is installed and your terminal has proper permissions",
+      `Failed to start Qwen CLI: ${err instanceof Error ? err.message : String(err)}`,
+      "Ensure Qwen CLI is installed and your terminal has proper permissions",
     );
   }
 
@@ -136,7 +136,7 @@ export function spawnSession(
     if (session.ws && session.ws.readyState === 1 /* OPEN */) {
       const error: AppError = {
         code: "PTY_EXITED",
-        message: "Claude Code exited",
+        message: "Qwen CLI exited",
         action: "Click Restart to begin a new session",
       };
       session.ws.send(JSON.stringify({ type: "error", error }));

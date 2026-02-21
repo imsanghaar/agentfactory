@@ -15,11 +15,11 @@ export default function AccountLayout({
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
               <Image
-                src="/logo.webp"
-                alt="Panaversity"
-                width={240}
-                height={60}
-                className="h-14 w-auto"
+                src="/new_favicon.png"
+                alt="imsanghaar"
+                width={200}
+                height={113}
+                className="h-10 w-auto"
                 priority
               />
             </Link>
@@ -37,7 +37,7 @@ export default function AccountLayout({
       {/* Footer */}
       <footer className="py-6 text-center border-t border-slate-200/50 mt-auto">
         <p className="text-xs text-slate-400">
-          © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity"}. All rights reserved.
+          © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_ORG_NAME || "imsanghaar"}. All rights reserved.
         </p>
       </footer>
     </div>

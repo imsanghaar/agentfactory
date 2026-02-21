@@ -1,5 +1,5 @@
 export type ErrorCode =
-  | "CLAUDE_NOT_FOUND"
+  | "QWEN_NOT_FOUND"
   | "EXERCISE_NOT_FOUND"
   | "DOWNLOAD_FAILED"
   | "DOWNLOAD_TIMEOUT"
@@ -51,7 +51,7 @@ export function httpStatus(code: ErrorCode): 400 | 404 | 500 {
     case "EXERCISE_NOT_FOUND":
     case "SESSION_NOT_FOUND":
       return 404;
-    case "CLAUDE_NOT_FOUND":
+    case "QWEN_NOT_FOUND":
     case "DOWNLOAD_FAILED":
     case "DOWNLOAD_TIMEOUT":
     case "EXTRACTION_FAILED":

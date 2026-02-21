@@ -423,10 +423,10 @@ export const auth = betterAuth({
     },
     // Password reset - always register handler, sendEmail() handles "not configured" case
     sendResetPassword: async ({ user, url }) => {
-      const appName = process.env.NEXT_PUBLIC_APP_NAME || "Panaversity SSO";
+      const appName = process.env.NEXT_PUBLIC_APP_NAME || "imsanghaar SSO";
       const appDescription =
         process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Secure Single Sign-On";
-      const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity";
+      const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "imsanghaar";
 
       await sendEmail({
         to: user.email,
@@ -520,10 +520,10 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 3600, // 1 hour
     sendVerificationEmail: async ({ user, url }) => {
-      const appName = process.env.NEXT_PUBLIC_APP_NAME || "Panaversity SSO";
+      const appName = process.env.NEXT_PUBLIC_APP_NAME || "imsanghaar SSO";
       const appDescription =
         process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Secure Single Sign-On";
-      const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity";
+      const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "imsanghaar";
 
       await sendEmail({
         to: user.email,
@@ -838,10 +838,10 @@ export const auth = betterAuth({
       },
       // Send invitation emails when members are invited
       async sendInvitationEmail(data) {
-        const appName = process.env.NEXT_PUBLIC_APP_NAME || "Panaversity SSO";
+        const appName = process.env.NEXT_PUBLIC_APP_NAME || "imsanghaar SSO";
         const appDescription =
           process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Secure Single Sign-On";
-        const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "Panaversity";
+        const orgName = process.env.NEXT_PUBLIC_ORG_NAME || "imsanghaar";
         const baseUrl =
           process.env.BETTER_AUTH_URL ||
           process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||

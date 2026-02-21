@@ -39,3 +39,4 @@ class QuizSubmitResponse(BaseModel):
     best_score: int
     new_badges: list[BadgeEarned]
     streak: StreakInfo
+    rank: int | None = None  # User's current rank after submission

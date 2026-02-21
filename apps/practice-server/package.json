@@ -1,7 +1,7 @@
 {
   "name": "af-practice",
   "version": "0.1.2",
-  "description": "Local practice server for Agent Factory exercises — launches Claude Code in a PTY with exercise workspaces",
+  "description": "Local practice server for Agent Factory exercises — launches Qwen CLI in a PTY with exercise workspaces",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   },
   "homepage": "https://agentfactory.dev",
   "keywords": [
-    "claude-code",
+    "qwen-cli",
     "practice",
     "terminal",
     "pty",

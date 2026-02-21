@@ -31,7 +31,7 @@ export function GatedQuiz({
     (siteConfig.customFields?.progressApiUrl as string) ||
     "http://localhost:8002";
 
-  const { progress, refreshProgress } = useProgress();
+  const { refreshProgress } = useProgress();
   const [quizResult, setQuizResult] = useState<{
     xpData: QuizSubmitResponse;
     scorePct: number;
@@ -51,14 +51,26 @@ export function GatedQuiz({
             ? pathSegments.slice(docsIndex + 1, -1).join("/")
             : window.location.pathname;
 
+        console.log("[GatedQuiz] Submitting quiz score:", {
+          chapter_slug: chapterSlug,
+          score_pct: result.score_pct,
+          questions_correct: result.questions_correct,
+          questions_total: result.questions_total,
+        });
+
         const response = await submitQuizScore(progressApiUrl, {
           chapter_slug: chapterSlug,
           score_pct: result.score_pct,
           questions_correct: result.questions_correct,
           questions_total: result.questions_total,
         });
+
+        console.log("[GatedQuiz] Quiz score submitted:", response);
+
         setQuizResult({ xpData: response, scorePct: result.score_pct });
-        refreshProgress();
+        
+        // Refresh progress data (XP, badges, rank will update in background)
+        await refreshProgress();
       } catch (err) {
         console.error("[GatedQuiz] Failed to submit quiz score:", err);
       }
@@ -80,7 +92,7 @@ export function GatedQuiz({
           totalXp={quizResult.xpData.total_xp}
           newBadges={quizResult.xpData.new_badges}
           attemptNumber={quizResult.xpData.attempt_number}
-          rank={progress?.stats?.rank}
+          rank={quizResult.xpData.rank}
         />
       )}
     </>

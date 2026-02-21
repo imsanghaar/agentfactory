@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Panaversity Org SSO",
-  description: "Sign in or create an account for Panaversity Org",
+  title: "Imam Sanghaar SSO",
+  description: "Sign in or create an account for Imam Sanghaar",
+  icons: {
+    icon: "/new_favicon.png",
+    apple: "/new_favicon.png",
+  },
 };
 
 export default function RootLayout({

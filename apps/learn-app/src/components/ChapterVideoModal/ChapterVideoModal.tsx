@@ -55,9 +55,15 @@ const ChapterVideoModal = React.forwardRef<
         >
           {/* Projector Assembly - Descends from top */}
           <div className={cn(
-            "projector-assembly",
+            "projector-assembly projector-left",
             showProjector ? "projector-descended" : ""
           )}>
+            {/* Mounting Stand */}
+            <div className="projector-stand">
+              <div className="stand-pole"></div>
+              <div className="stand-mount"></div>
+            </div>
+            
             {/* Projector Body */}
             <div className="projector-body">
               <div className="projector-branding">imsanghaar</div>
@@ -75,8 +81,37 @@ const ChapterVideoModal = React.forwardRef<
               <div className="ray ray-left"></div>
               <div className="ray ray-center"></div>
               <div className="ray ray-right"></div>
-              <div className="ray ray-far-left"></div>
-              <div className="ray ray-far-right"></div>
+            </div>
+          </div>
+
+          {/* Right Projector */}
+          <div className={cn(
+            "projector-assembly projector-right",
+            showProjector ? "projector-descended" : ""
+          )}>
+            {/* Mounting Stand */}
+            <div className="projector-stand">
+              <div className="stand-pole"></div>
+              <div className="stand-mount"></div>
+            </div>
+            
+            {/* Projector Body */}
+            <div className="projector-body">
+              <div className="projector-branding">imsanghaar</div>
+              <div className="projector-lens">
+                <div className="lens-glass"></div>
+              </div>
+              <div className="projector-vents"></div>
+            </div>
+            
+            {/* Light Rays */}
+            <div className={cn(
+              "projector-rays",
+              showProjector ? "rays-visible" : ""
+            )}>
+              <div className="ray ray-left"></div>
+              <div className="ray ray-center"></div>
+              <div className="ray ray-right"></div>
             </div>
           </div>
 
@@ -89,10 +124,11 @@ const ChapterVideoModal = React.forwardRef<
               <div className="screen-border">
                 <div className="video-container">
                   <iframe
-                    src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=${isPlayerReady ? '1' : '0'}`}
+                    src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=0&controls=1`}
                     title="Chapter Video"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
+                    style={{ pointerEvents: 'auto' }}
                   />
                 </div>
               </div>

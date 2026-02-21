@@ -80,20 +80,20 @@ try {
 // Make version available to server routes (health endpoint)
 process.env.PRACTICE_VERSION = pkg.version;
 
-// Import and start the server (this triggers resolveClaudePath() at startup)
-const { resolveClaudePath, getCachedClaudePath } =
-  await import("../src/claude-path.js");
-resolveClaudePath();
+// Import and start the server (this triggers resolveQwenPath() at startup)
+const { resolveQwenPath, getCachedQwenPath } =
+  await import("../src/qwen-path.js");
+resolveQwenPath();
 
 const port = process.env.PORT || "3100";
-const claudePath = getCachedClaudePath();
+const qwenPath = getCachedQwenPath();
 
 console.log("");
 console.log(`  af-practice v${pkg.version}`);
 console.log(`  ──────────────────────────────────────`);
 console.log(`  Port:   ${port}`);
 console.log(
-  `  Claude: ${claudePath ? claudePath : "NOT FOUND (install Claude Code)"}`,
+  `  Qwen:   ${qwenPath ? qwenPath : "NOT FOUND (install Qwen CLI)"}`,
 );
 console.log(`  Health: http://localhost:${port}/health`);
 console.log("");

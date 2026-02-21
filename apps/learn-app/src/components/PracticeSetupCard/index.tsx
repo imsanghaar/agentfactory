@@ -40,18 +40,22 @@ export function PracticeSetupCard({ onRetry }: PracticeSetupCardProps) {
         className="practice-setup-expand"
         onClick={() => setShowClaudeInfo(!showClaudeInfo)}
       >
-        {showClaudeInfo ? "Hide" : "Don't have Claude Code?"}
+        {showClaudeInfo ? "Hide" : "Don't have Qwen CLI?"}
       </button>
       {showClaudeInfo && (
         <div className="practice-setup-info">
           <p>
-            Claude Code is required for practice exercises. Install it from:{" "}
+            Qwen CLI is required for practice exercises. Install it with:{" "}
+            <code>npm install -g @qwen-code/qwen-code@latest</code>
+          </p>
+          <p>
+            Learn more at:{" "}
             <a
-              href="https://docs.anthropic.com/en/docs/claude-code/overview"
+              href="https://github.com/QwenLM/qwen-code"
               target="_blank"
               rel="noopener noreferrer"
             >
-              docs.anthropic.com
+              github.com/QwenLM/qwen-code
             </a>
           </p>
         </div>
