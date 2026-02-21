@@ -11,12 +11,19 @@ dotenv.config();
 const DEV_MODE = process.env.DEV_MODE === "true";
 
 // Auth server URL for login/signup redirects
-const AUTH_URL = process.env.AUTH_URL || "http://localhost:3001";
+// Production: https://agentfactory.imsanghaar-sso.vercel.app
+// Development: http://localhost:3001
+const AUTH_URL = process.env.AUTH_URL || "https://agentfactory.imsanghaar-sso.vercel.app";
 
 // OAuth client ID - use the pre-configured trusted client (PKCE + JWKS)
 // This matches the trustedClients configuration in auth-server
 const OAUTH_CLIENT_ID =
   process.env.OAUTH_CLIENT_ID || "agent-factory-public-client";
+
+// SSO Admin Panel URL - for Admin link in navbar
+// Production: https://agentfactory.imsanghaar-sso.vercel.app
+// Development: http://localhost:3001
+const SSO_URL = process.env.SSO_URL || "https://agentfactory.imsanghaar-sso.vercel.app";
 
 // Study Mode API URL - ChatKit server for AI tutoring
 const STUDY_MODE_API_URL =
@@ -453,7 +460,7 @@ const config: Config = {
           position: "right",
         },
         {
-          href: process.env.SSO_URL || "http://localhost:3001",
+          href: SSO_URL,
           label: "Admin",
           position: "right",
           className: "navbar-admin-link",
