@@ -76,3 +76,4 @@ scripts/update-admin*.ts
 
 exercises-pack/
 skills-exercises/
+.vercel

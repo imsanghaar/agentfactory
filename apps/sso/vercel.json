@@ -1,6 +1,4 @@
 {
-  "buildCommand": "cd ../../ && pnpm install && cd apps/sso && pnpm build",
-  "installCommand": "cd ../../ && pnpm install",
-  "framework": "nextjs",
-  "outputDirectory": ".next"
+  "cleanUrls": true,
+  "trailingSlash": false
 }

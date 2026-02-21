@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         await db
           .update(organization)
           .set({
-            metadata: { disabled: true, disabledAt: new Date().toISOString() },
+            metadata: JSON.stringify({ disabled: true, disabledAt: new Date().toISOString() }),
           })
           .where(inArray(organization.id, organizationIds));
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         await db
           .update(organization)
           .set({
-            metadata: { disabled: false },
+            metadata: JSON.stringify({ disabled: false }),
           })
           .where(inArray(organization.id, organizationIds));
 

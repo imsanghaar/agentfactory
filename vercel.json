@@ -1,14 +1,6 @@
 {
-  "projects": [
-    {
-      "name": "agentfactory-book",
-      "path": "apps/learn-app",
-      "framework": "docusaurus"
-    },
-    {
-      "name": "agentfactory-sso",
-      "path": "apps/sso",
-      "framework": "nextjs"
-    }
-  ]
+  "buildCommand": "cd apps/learn-app && pnpm build",
+  "outputDirectory": "apps/learn-app/build",
+  "cleanUrls": true,
+  "trailingSlash": false
 }
