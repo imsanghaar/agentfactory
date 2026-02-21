@@ -16,21 +16,34 @@ jobs:
         env:
           SSO_PAT: ${{ secrets.SSO_PAT }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
+          # Fail early if secret is not provided
+          if [ -z "${SSO_PAT}" ]; then
+            echo "Error: SSO_PAT secret is not set. Add it under repository secrets with a PAT that has write access to the target repo." >&2
+            exit 1
+          fi
+
           # Configure git credentials for authentication
           git config user.name "panaversity-global"
           git config user.email "panaversity-global@users.noreply.github.com"
 
-          MIRROR_URL="https://panaversity-global:${SSO_PAT}@github.com/panaversity-global/sso-mirror-mono.git"
+          # Use x-access-token as the username when embedding a personal access token in an https URL
+          MIRROR_URL="https://x-access-token:${SSO_PAT}@github.com/panaversity-global/sso-mirror-mono.git"
 
           # Force push source to mirror
           git push "${MIRROR_URL}" HEAD:main --force
 
           # Update CHANGELOG with sync timestamp to trigger Vercel deployment
           echo "Synced from panaversity/agentfactory at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > CHANGELOG.md
-          echo "Source commit: ${{ github.sha }}" >> CHANGELOG.md
+          echo "Source commit: ${SOURCE_SHA}" >> CHANGELOG.md
           echo "Message: ${COMMIT_MESSAGE}" >> CHANGELOG.md
 
           git add CHANGELOG.md
-          git commit -m "sync: trigger deploy from ${{ github.sha }}"
-          git push "${MIRROR_URL}" HEAD:main
+          # Only commit/push if there are changes to avoid failing when nothing changed
+          if git diff --cached --quiet; then
+            echo "No CHANGELOG changes to commit"
+          else
+            git commit -m "sync: trigger deploy from ${SOURCE_SHA}"
+            git push "${MIRROR_URL}" HEAD:main
+          fi
