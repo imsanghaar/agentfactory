@@ -1,4 +1,5 @@
 {
+  "framework": "docusaurus",
   "buildCommand": "cd apps/learn-app && pnpm build",
   "outputDirectory": "build",
   "cleanUrls": true,
