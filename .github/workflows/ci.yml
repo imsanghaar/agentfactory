@@ -54,12 +54,13 @@ jobs:
       #   - practice-server: practice-server-ci.yml (needs node-pty native compilation)
       #   - learn-app: pr-check.yml (Docusaurus build is 10-30 min)
       #   - Python APIs: need database + Docker (not available here)
+      #   - sso: test-auth.yml (has dedicated auth server test workflow)
       - name: Run affected lint
-        run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server
+        run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server,sso
         timeout-minutes: 10
 
       - name: Run affected typecheck
-        run: npx nx affected -t typecheck --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server
+        run: npx nx affected -t typecheck --base=$NX_BASE --head=$NX_HEAD --exclude=practice-server,sso
         timeout-minutes: 10
 
       - name: Build summary

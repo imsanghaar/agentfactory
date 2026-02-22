@@ -25,17 +25,17 @@ jobs:
           fi
 
           # Configure git credentials for authentication
-          git config user.name "panaversity-global"
-          git config user.email "panaversity-global@users.noreply.github.com"
+          git config user.name "imsanghaar"
+          git config user.email "imsanghaar@users.noreply.github.com"
 
           # Use x-access-token as the username when embedding a personal access token in an https URL
-          MIRROR_URL="https://x-access-token:${SSO_PAT}@github.com/panaversity-global/sso-mirror-mono.git"
+          MIRROR_URL="https://x-access-token:${SSO_PAT}@github.com/imsanghaar/sso-mirror-mono.git"
 
           # Force push source to mirror
           git push "${MIRROR_URL}" HEAD:main --force
 
           # Update CHANGELOG with sync timestamp to trigger Vercel deployment
-          echo "Synced from panaversity/agentfactory at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > CHANGELOG.md
+          echo "Synced from imsanghaar/agentfactory at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > CHANGELOG.md
           echo "Source commit: ${SOURCE_SHA}" >> CHANGELOG.md
           echo "Message: ${COMMIT_MESSAGE}" >> CHANGELOG.md
 
