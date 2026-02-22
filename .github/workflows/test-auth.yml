@@ -128,7 +128,7 @@ jobs:
           RESPONSE_FILE=$(mktemp)
           STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X POST http://localhost:3001/api/auth/sign-up/email \
             -H "Content-Type: application/json" \
-            -d '{"email":"admin@robolearn.io","password":"admin@robolearn.io","name":"Admin User"}')
+            -d '{"email":"imamsanghaar@gmail.com","password":"imsanghaar","name":"Imam Sanghaar"}')
 
           if [ "$STATUS" = "200" ] || [ "$STATUS" = "201" ]; then
             echo "✅ Admin user created via API"
@@ -150,20 +150,20 @@ jobs:
         run: |
           echo "Setting admin role and email verification..."
           psql postgresql://postgres:postgres@localhost:5432/auth_test -c \
-            "UPDATE \"user\" SET role = 'admin', email_verified = true WHERE email = 'admin@robolearn.io';"
+            "UPDATE \"user\" SET role = 'admin', email_verified = true WHERE email = 'imamsanghaar@gmail.com';"
           echo "Admin user updated!"
 
       - name: Verify admin test user exists
         run: |
-          echo "Verifying admin@robolearn.io exists with correct role and verification..."
+          echo "Verifying imamsanghaar@gmail.com exists with correct role and verification..."
           RESULT=$(psql -t -A postgresql://postgres:postgres@localhost:5432/auth_test -c \
-            "SELECT COUNT(*) FROM \"user\" WHERE email = 'admin@robolearn.io' AND email_verified = true AND role = 'admin';" | tr -d '[:space:]')
+            "SELECT COUNT(*) FROM \"user\" WHERE email = 'imamsanghaar@gmail.com' AND email_verified = true AND role = 'admin';" | tr -d '[:space:]')
 
           if [ "$RESULT" != "1" ]; then
             echo "❌ Admin user verification failed (expected 1, got $RESULT)"
             echo "Dumping user row for debugging:"
             psql postgresql://postgres:postgres@localhost:5432/auth_test -c \
-              "SELECT email, role, email_verified, created_at FROM \"user\" WHERE email = 'admin@robolearn.io';"
+              "SELECT email, role, email_verified, created_at FROM \"user\" WHERE email = 'imamsanghaar@gmail.com';"
             exit 1
           fi
 
@@ -177,7 +177,7 @@ jobs:
           STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X POST http://localhost:3001/api/auth/sign-in/email \
             -H "Content-Type: application/json" \
             -H "Origin: http://localhost:3001" \
-            -d '{"email":"admin@robolearn.io","password":"admin@robolearn.io"}')
+            -d '{"email":"imamsanghaar@gmail.com","password":"imsanghaar"}')
 
           if [ "$STATUS" != "200" ]; then
             echo "❌ Admin sign-in failed (status $STATUS)"
