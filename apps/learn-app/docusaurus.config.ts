@@ -11,9 +11,9 @@ dotenv.config();
 const DEV_MODE = process.env.DEV_MODE === "true";
 
 // Auth server URL for login/signup redirects
-// Production: https://auth-imsanghaar.vercel.app
+// Production: https://auth-agentfactory.vercel.app
 // Development: http://localhost:3001
-const AUTH_URL = process.env.AUTH_URL || "https://auth-imsanghaar.vercel.app";
+const AUTH_URL = process.env.AUTH_URL || "https://auth-agentfactory.vercel.app";
 
 // OAuth client ID - use the pre-configured trusted client (PKCE + JWKS)
 // This matches the trustedClients configuration in auth-server
