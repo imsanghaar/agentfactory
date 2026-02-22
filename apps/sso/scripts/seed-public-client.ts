@@ -29,13 +29,13 @@ const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
 const PUBLIC_CLIENT = {
-  id: "robolearn-public-client-id",
-  clientId: "robolearn-public-client",
+  id: "agent-factory-public-client-id",
+  clientId: "agent-factory-public-client",
   clientSecret: null, // No secret for public client
-  name: "RoboLearn Public Client",
+  name: "Agent Factory Public Client",
   redirectUrls: [ // Better Auth 1.4.x expects redirectUrls (camelCase)
     "http://localhost:3000/auth/callback",
-    // Add production URL here
+    "https://agentfactory-imsanghaar.vercel.app/auth/callback",
   ].join(","),
   type: "public",
   disabled: false,
