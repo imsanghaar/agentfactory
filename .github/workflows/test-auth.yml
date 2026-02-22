@@ -176,6 +176,7 @@ jobs:
           RESPONSE_FILE=$(mktemp)
           STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" -X POST http://localhost:3001/api/auth/sign-in/email \
             -H "Content-Type: application/json" \
+            -H "Origin: http://localhost:3001" \
             -d '{"email":"admin@robolearn.io","password":"admin@robolearn.io"}')
 
           if [ "$STATUS" != "200" ]; then
