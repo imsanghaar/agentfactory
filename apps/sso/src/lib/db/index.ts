@@ -1,18 +1,29 @@
 import * as schema from "../../../auth-schema"; // Use Better Auth generated schema
 
-// Get database URL from environment
-// Production: DATABASE_URL must be set
-// Build time: Uses placeholder to prevent build failures
-// Development: Falls back to local postgres for testing
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Environment Variable Validation
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/**
+ * Get database URL with clear error messages for missing configuration
+ */
 const getDatabaseUrl = (): string => {
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL;
   }
-  // During build, Next.js imports this file - allow placeholder
+  
+  // In production (Vercel runtime), DATABASE_URL is absolutely required
   if (process.env.NODE_ENV === "production" && !process.env.NEXT_PHASE) {
-    throw new Error("DATABASE_URL must be set in production");
+    console.error("[DB] CRITICAL: DATABASE_URL not set in production!");
+    console.error("[DB] Please add DATABASE_URL to your Vercel environment variables.");
+    console.error("[DB] Get a free PostgreSQL database at: https://neon.tech");
+    throw new Error(
+      "DATABASE_URL must be set in production. " +
+      "Add it to Vercel environment variables (Production scope)."
+    );
   }
-  // Development/build placeholder
+  
+  // Development/build placeholder (prevents build failures)
   return "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 };
 

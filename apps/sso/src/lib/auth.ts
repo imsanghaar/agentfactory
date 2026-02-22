@@ -11,6 +11,29 @@ import { apiKey } from "better-auth/plugins";
 import { db } from "./db";
 import * as schema from "../../auth-schema"; // Use Better Auth generated schema
 import { member } from "../../auth-schema";
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Environment Variable Validation (Prevent Server Crashes)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// These checks run at module import time to fail fast with clear errors
+// instead of cryptic "Application error" messages on Vercel
+
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error(
+    "[Auth] CRITICAL: BETTER_AUTH_SECRET environment variable is required!\n" +
+    "Generate a secure secret with: openssl rand -base64 32\n" +
+    "Add it to your Vercel environment variables (Production scope)."
+  );
+}
+
+if (process.env.BETTER_AUTH_SECRET.length < 32) {
+  throw new Error(
+    "[Auth] CRITICAL: BETTER_AUTH_SECRET must be at least 32 characters!\n" +
+    "Generate a secure secret with: openssl rand -base64 32"
+  );
+}
+
+console.log("[Auth] Environment validation passed ✓");
 import {
   ac,
   owner as ownerRole,
