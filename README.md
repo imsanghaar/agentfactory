@@ -4,7 +4,7 @@
 >
 > **Empowering developers, entrepreneurs, and organizations to learn, build, and monetize intelligent AI agents — creating reliable Digital FTEs you can trust, deploy, and scale.**
 
-📚 **Live Book**: [https://agentfactory.imsanghaar.vercel.app](https://agentfactory.imsanghaar.vercel.app) 
+📚 **Visit the Book**: [Live Book](https://agentfactory-imsanghaar.vercel.app) 
 ---
 
 <p align="center">
@@ -168,7 +168,7 @@ The future of software development is collaborative, conversational, and powered
 3. **Build alongside AI** — Start with Python basics, gradually master AI-native architectures
 4. **Deploy to production** — By the end, you'll be running scalable, intelligent systems
 
-📘 **Read the book**: [https://agentfactory.imsanghaar.vercel.app](https://agentfactory.imsanghaar.vercel.app)
+📘 **Read the book**: [The AI Agent Factory](https://agentfactory.imsanghaar.vercel.app)
 
 🎓 **imsanghaar**: [https://imsanghaar.vercel.app](https://imsanghaar.vercel.app)
 
